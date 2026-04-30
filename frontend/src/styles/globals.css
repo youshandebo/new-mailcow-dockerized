@@ -1,0 +1,151 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+    color: #1F2329;
+    background-color: #F7F8FA;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #C4C6C9;
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #A0A3A8;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-qq-blue text-white px-4 py-2 rounded-qq font-medium
+      hover:bg-qq-blue-dark transition-colors duration-200
+      active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply bg-white text-qq-text border border-qq-border px-4 py-2 rounded-qq font-medium
+      hover:bg-qq-hover transition-colors duration-200
+      active:scale-[0.98];
+  }
+
+  .btn-icon {
+    @apply p-2 rounded-qq text-qq-text-secondary hover:bg-qq-hover
+      hover:text-qq-text transition-colors duration-200;
+  }
+
+  .input-field {
+    @apply w-full px-3 py-2 border border-qq-border rounded-qq
+      focus:outline-none focus:border-qq-blue focus:ring-1 focus:ring-qq-blue/30
+      placeholder:text-qq-text-secondary transition-all duration-200;
+  }
+
+  .card {
+    @apply bg-white rounded-qq shadow-qq border border-qq-border;
+  }
+
+  .email-item {
+    @apply flex items-start gap-3 px-4 py-3 cursor-pointer
+      border-b border-qq-border/50 hover:bg-qq-hover
+      transition-colors duration-150;
+  }
+
+  .email-item.active {
+    @apply bg-qq-blue-light border-l-2 border-l-qq-blue;
+  }
+
+  .email-item.unread {
+    @apply bg-white;
+  }
+
+  .email-item.unread .email-subject {
+    @apply font-semibold text-qq-text;
+  }
+
+  .folder-item {
+    @apply flex items-center gap-3 px-4 py-2.5 cursor-pointer
+      hover:bg-qq-hover rounded-qq mx-2 transition-colors duration-150;
+  }
+
+  .folder-item.active {
+    @apply bg-qq-blue-light text-qq-blue font-medium;
+  }
+
+  .folder-item .unread-badge {
+    @apply bg-qq-blue text-white text-xs px-1.5 py-0.5 rounded-full min-w-[20px] text-center;
+  }
+}
+
+/* Email body styles */
+.email-body {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #1F2329;
+}
+
+.email-body img {
+  max-width: 100%;
+  height: auto;
+}
+
+.email-body a {
+  color: #12B7F5;
+  text-decoration: none;
+}
+
+.email-body a:hover {
+  text-decoration: underline;
+}
+
+.email-body blockquote {
+  border-left: 3px solid #E5E6EB;
+  padding-left: 12px;
+  margin: 8px 0;
+  color: #8F959E;
+}
+
+/* Compose modal animation */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.compose-modal {
+  animation: slideUp 0.2s ease-out;
+}
+
+/* AI chat floating panel */
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.ai-chat-panel {
+  animation: fadeIn 0.2s ease-out;
+}

@@ -1,0 +1,40 @@
+version: "2.4"
+
+services:
+  webmail-backend:
+    build: ./custom-webmail
+    container_name: webmail-backend-mailcow
+    restart: unless-stopped
+    networks:
+      mailcow-network:
+        ipv4_address: ${IPV4_NETWORK:-172.22.1}.240
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - IMAP_HOST=dovecot-mailcow
+      - IMAP_PORT=993
+      - IMAP_TLS=true
+      - SMTP_HOST=postfix-mailcow
+      - SMTP_PORT=587
+      - SMTP_TLS=true
+      - MAILCOW_API_URL=http://nginx-mailcow
+      - MAILCOW_API_KEY=${MAILCOW_API_KEY}
+      - REDIS_URL=redis://:${REDISPASS}@redis-mailcow:6379
+      - CLAUDE_API_KEY=${CLAUDE_API_KEY}
+      - JWT_SECRET=${JWT_SECRET:-change-me-in-production}
+    volumes:
+      - ./custom-webmail/logs:/app/logs
+    depends_on:
+      - redis-mailcow
+    dns:
+      - 172.22.1.254
+
+  webmail-frontend:
+    build: ./frontend
+    container_name: webmail-frontend-mailcow
+    restart: unless-stopped
+    networks:
+      mailcow-network:
+        ipv4_address: ${IPV4_NETWORK:-172.22.1}.241
+    depends_on:
+      - webmail-backend
