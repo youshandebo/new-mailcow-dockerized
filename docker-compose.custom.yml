@@ -2,7 +2,7 @@ version: "2.4"
 
 services:
   webmail-backend:
-    build: ./custom-webmail
+    image: ghcr.io/youshandebo/custom-webmail-backend:latest
     container_name: webmail-backend-mailcow
     restart: unless-stopped
     networks:
@@ -30,7 +30,7 @@ services:
       - 172.22.1.254
 
   webmail-frontend:
-    build: ./frontend
+    image: ghcr.io/youshandebo/custom-webmail-frontend:latest
     container_name: webmail-frontend-mailcow
     restart: unless-stopped
     networks:
