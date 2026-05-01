@@ -38,6 +38,9 @@ router.put('/ai', async (req: AuthRequest, res: Response) => {
     if (updates.baseUrl !== undefined && typeof updates.baseUrl !== 'string') {
       return res.status(400).json({ error: 'Base URL 格式不正确' });
     }
+    if (updates.provider !== undefined && !['openai', 'claude'].includes(updates.provider)) {
+      return res.status(400).json({ error: 'Provider 必须是 openai 或 claude' });
+    }
 
     const tokenFields = ['maxTokensCompose', 'maxTokensChat', 'maxTokensSummarize', 'maxTokensClassify'] as const;
     for (const field of tokenFields) {
@@ -53,6 +56,7 @@ router.put('/ai', async (req: AuthRequest, res: Response) => {
     // Merge with existing settings
     const current = claudeService.getSettings();
     const merged: AiSettings = {
+      provider: updates.provider !== undefined ? updates.provider : (current.provider || 'claude'),
       apiKey: updates.apiKey !== undefined ? updates.apiKey : current.apiKey,
       model: updates.model !== undefined ? updates.model : current.model,
       baseUrl: updates.baseUrl !== undefined ? updates.baseUrl : current.baseUrl,

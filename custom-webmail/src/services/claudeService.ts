@@ -1,4 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk';
+import OpenAI from 'openai';
 import { config } from '../config';
 import { cacheService } from './cacheService';
 import { logger } from '../utils/logger';
@@ -7,6 +8,7 @@ import { ComposeParams, EmailContent, EmailSummary, EmailClassification, ChatMes
 const SETTINGS_KEY = 'ai:settings';
 
 const DEFAULT_SETTINGS: AiSettings = {
+  provider: 'claude',
   apiKey: config.claude.apiKey,
   model: 'claude-sonnet-4-20250514',
   baseUrl: '',
@@ -17,20 +19,27 @@ const DEFAULT_SETTINGS: AiSettings = {
 };
 
 class ClaudeService {
-  private client: Anthropic;
+  private anthropicClient: Anthropic | null = null;
+  private openaiClient: OpenAI | null = null;
   private settings: AiSettings;
 
   constructor() {
     this.settings = { ...DEFAULT_SETTINGS };
-    this.client = this.createClient(this.settings);
+    this.createClients(this.settings);
   }
 
-  private createClient(settings: AiSettings): Anthropic {
-    const options: any = { apiKey: settings.apiKey };
-    if (settings.baseUrl) {
-      options.baseURL = settings.baseUrl;
+  private createClients(settings: AiSettings): void {
+    if (settings.provider === 'openai') {
+      const options: any = { apiKey: settings.apiKey };
+      if (settings.baseUrl) options.baseURL = settings.baseUrl;
+      this.openaiClient = new OpenAI(options);
+      this.anthropicClient = null;
+    } else {
+      const options: any = { apiKey: settings.apiKey };
+      if (settings.baseUrl) options.baseURL = settings.baseUrl;
+      this.anthropicClient = new Anthropic(options);
+      this.openaiClient = null;
     }
-    return new Anthropic(options);
   }
 
   async reloadSettings(): Promise<void> {
@@ -38,6 +47,7 @@ class ClaudeService {
       const stored = await cacheService.get<AiSettings>(SETTINGS_KEY);
       if (stored) {
         this.settings = {
+          provider: stored.provider || 'claude',
           apiKey: stored.apiKey || DEFAULT_SETTINGS.apiKey,
           model: stored.model || DEFAULT_SETTINGS.model,
           baseUrl: stored.baseUrl || '',
@@ -46,8 +56,8 @@ class ClaudeService {
           maxTokensSummarize: stored.maxTokensSummarize || DEFAULT_SETTINGS.maxTokensSummarize,
           maxTokensClassify: stored.maxTokensClassify || DEFAULT_SETTINGS.maxTokensClassify,
         };
-        this.client = this.createClient(this.settings);
-        logger.info('AI settings reloaded from Redis', { model: this.settings.model });
+        this.createClients(this.settings);
+        logger.info('AI settings reloaded from Redis', { model: this.settings.model, provider: this.settings.provider });
       }
     } catch (err: any) {
       logger.warn('Failed to reload AI settings, using current', { error: err.message });
@@ -60,6 +70,7 @@ class ClaudeService {
 
   getMaskedSettings(): Omit<AiSettings, 'apiKey'> & { hasApiKey: boolean } {
     return {
+      provider: this.settings.provider,
       model: this.settings.model,
       baseUrl: this.settings.baseUrl,
       maxTokensCompose: this.settings.maxTokensCompose,
@@ -72,11 +83,19 @@ class ClaudeService {
 
   async testConnection(): Promise<{ success: boolean; error?: string }> {
     try {
-      await this.client.messages.create({
-        model: this.settings.model,
-        max_tokens: 16,
-        messages: [{ role: 'user', content: 'Hi' }],
-      });
+      if (this.settings.provider === 'openai' && this.openaiClient) {
+        await this.openaiClient.chat.completions.create({
+          model: this.settings.model,
+          max_tokens: 16,
+          messages: [{ role: 'user', content: 'Hi' }],
+        });
+      } else if (this.anthropicClient) {
+        await this.anthropicClient.messages.create({
+          model: this.settings.model,
+          max_tokens: 16,
+          messages: [{ role: 'user', content: 'Hi' }],
+        });
+      }
       return { success: true };
     } catch (err: any) {
       return { success: false, error: err.message };
@@ -99,16 +118,31 @@ Output format: JSON with "subject" and "body" fields.`;
       userPrompt = `Improve this email:\n\n${params.context}\n\nImprovement instructions: ${params.prompt}`;
     }
 
-    const stream = this.client.messages.stream({
-      model: this.settings.model,
-      max_tokens: this.settings.maxTokensCompose,
-      system: systemPrompt,
-      messages: [{ role: 'user', content: userPrompt }],
-    });
-
-    for await (const event of stream) {
-      if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
-        yield event.delta.text;
+    if (this.settings.provider === 'openai' && this.openaiClient) {
+      const stream = await this.openaiClient.chat.completions.create({
+        model: this.settings.model,
+        max_tokens: this.settings.maxTokensCompose,
+        stream: true,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt },
+        ],
+      });
+      for await (const chunk of stream) {
+        const content = chunk.choices[0]?.delta?.content;
+        if (content) yield content;
+      }
+    } else if (this.anthropicClient) {
+      const stream = this.anthropicClient.messages.stream({
+        model: this.settings.model,
+        max_tokens: this.settings.maxTokensCompose,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: userPrompt }],
+      });
+      for await (const event of stream) {
+        if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
+          yield event.delta.text;
+        }
       }
     }
   }
@@ -121,17 +155,30 @@ Output format: JSON with "subject" and "body" fields.`;
 4. Any action items or deadlines mentioned
 Output as JSON with fields: summary, category, importance, actionItems (array of strings).`;
 
-    const message = await this.client.messages.create({
-      model: this.settings.model,
-      max_tokens: this.settings.maxTokensSummarize,
-      system: systemPrompt,
-      messages: [{
-        role: 'user',
-        content: `Subject: ${email.subject}\n\nFrom: ${email.from?.map(a => a.address).join(', ') || 'Unknown'}\n\nBody:\n${email.body.substring(0, 4000)}`,
-      }],
-    });
+    const userContent = `Subject: ${email.subject}\n\nFrom: ${email.from?.map(a => a.address).join(', ') || 'Unknown'}\n\nBody:\n${email.body.substring(0, 4000)}`;
 
-    const text = message.content[0].type === 'text' ? message.content[0].text : '';
+    let text = '';
+
+    if (this.settings.provider === 'openai' && this.openaiClient) {
+      const message = await this.openaiClient.chat.completions.create({
+        model: this.settings.model,
+        max_tokens: this.settings.maxTokensSummarize,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userContent },
+        ],
+      });
+      text = message.choices[0]?.message?.content || '';
+    } else if (this.anthropicClient) {
+      const message = await this.anthropicClient.messages.create({
+        model: this.settings.model,
+        max_tokens: this.settings.maxTokensSummarize,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: userContent }],
+      });
+      text = message.content[0].type === 'text' ? message.content[0].text : '';
+    }
+
     try {
       const jsonMatch = text.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
@@ -156,17 +203,30 @@ Importance: high, medium, low
 Also suggest relevant labels.
 Output as JSON with fields: category, importance, labels (array of strings).`;
 
-    const message = await this.client.messages.create({
-      model: this.settings.model,
-      max_tokens: this.settings.maxTokensClassify,
-      system: systemPrompt,
-      messages: [{
-        role: 'user',
-        content: `Subject: ${email.subject}\n\nFrom: ${email.from?.map(a => a.address).join(', ') || 'Unknown'}\n\nBody preview:\n${email.body.substring(0, 1000)}`,
-      }],
-    });
+    const userContent = `Subject: ${email.subject}\n\nFrom: ${email.from?.map(a => a.address).join(', ') || 'Unknown'}\n\nBody preview:\n${email.body.substring(0, 1000)}`;
 
-    const text = message.content[0].type === 'text' ? message.content[0].text : '';
+    let text = '';
+
+    if (this.settings.provider === 'openai' && this.openaiClient) {
+      const message = await this.openaiClient.chat.completions.create({
+        model: this.settings.model,
+        max_tokens: this.settings.maxTokensClassify,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userContent },
+        ],
+      });
+      text = message.choices[0]?.message?.content || '';
+    } else if (this.anthropicClient) {
+      const message = await this.anthropicClient.messages.create({
+        model: this.settings.model,
+        max_tokens: this.settings.maxTokensClassify,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: userContent }],
+      });
+      text = message.content[0].type === 'text' ? message.content[0].text : '';
+    }
+
     try {
       const jsonMatch = text.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
@@ -185,16 +245,33 @@ You can help users understand emails, draft responses, translate content,
 and answer questions about their email. Be concise and helpful.
 If the user references an email, the content will be provided in the context.`;
 
-    const stream = this.client.messages.stream({
-      model: this.settings.model,
-      max_tokens: this.settings.maxTokensChat,
-      system: systemPrompt || defaultSystem,
-      messages: messages.map(m => ({ role: m.role, content: m.content })),
-    });
+    const sysPrompt = systemPrompt || defaultSystem;
 
-    for await (const event of stream) {
-      if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
-        yield event.delta.text;
+    if (this.settings.provider === 'openai' && this.openaiClient) {
+      const stream = await this.openaiClient.chat.completions.create({
+        model: this.settings.model,
+        max_tokens: this.settings.maxTokensChat,
+        stream: true,
+        messages: [
+          { role: 'system', content: sysPrompt },
+          ...messages.map(m => ({ role: m.role as 'user' | 'assistant', content: m.content })),
+        ],
+      });
+      for await (const chunk of stream) {
+        const content = chunk.choices[0]?.delta?.content;
+        if (content) yield content;
+      }
+    } else if (this.anthropicClient) {
+      const stream = this.anthropicClient.messages.stream({
+        model: this.settings.model,
+        max_tokens: this.settings.maxTokensChat,
+        system: sysPrompt,
+        messages: messages.map(m => ({ role: m.role, content: m.content })),
+      });
+      for await (const event of stream) {
+        if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
+          yield event.delta.text;
+        }
       }
     }
   }

@@ -1,8 +1,8 @@
-version: "2.4"
-
 services:
   webmail-backend:
-    image: ghcr.io/youshandebo/custom-webmail-backend:latest
+    build:
+      context: ./custom-webmail
+      dockerfile: Dockerfile
     container_name: webmail-backend-mailcow
     restart: unless-stopped
     networks:
@@ -20,17 +20,18 @@ services:
       - MAILCOW_API_URL=http://nginx-mailcow
       - MAILCOW_API_KEY=${MAILCOW_API_KEY}
       - REDIS_URL=redis://:${REDISPASS}@redis-mailcow:6379
-      - CLAUDE_API_KEY=${CLAUDE_API_KEY}
       - JWT_SECRET=${JWT_SECRET:-change-me-in-production}
     volumes:
       - ./custom-webmail/logs:/app/logs
     depends_on:
       - redis-mailcow
     dns:
-      - 172.22.1.254
+      - ${IPV4_NETWORK:-172.22.1}.254
 
   webmail-frontend:
-    image: ghcr.io/youshandebo/custom-webmail-frontend:latest
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     container_name: webmail-frontend-mailcow
     restart: unless-stopped
     networks:

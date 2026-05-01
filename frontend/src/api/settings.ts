@@ -1,6 +1,7 @@
 import client from './client';
 
 export interface AiSettingsResponse {
+  provider: 'openai' | 'claude';
   hasApiKey: boolean;
   model: string;
   baseUrl: string;
@@ -11,6 +12,7 @@ export interface AiSettingsResponse {
 }
 
 export interface AiSettingsUpdate {
+  provider?: 'openai' | 'claude';
   apiKey?: string;
   model?: string;
   baseUrl?: string;

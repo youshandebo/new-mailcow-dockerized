@@ -137,6 +137,7 @@ export interface ChatMessage {
 }
 
 export interface AiSettings {
+  provider: 'openai' | 'claude';
   apiKey: string;
   model: string;
   baseUrl: string;

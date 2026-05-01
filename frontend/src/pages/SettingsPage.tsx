@@ -12,6 +12,7 @@ export default function SettingsPage() {
   const { settings, isLoading, isSaving, isTesting, error, message, fetchSettings, updateSettings, testConnection, clearMessages } = useSettingsStore();
 
   const [form, setForm] = useState({
+    provider: 'claude' as 'openai' | 'claude',
     apiKey: '',
     model: '',
     baseUrl: '',
@@ -36,6 +37,7 @@ export default function SettingsPage() {
   useEffect(() => {
     if (settings) {
       setForm({
+        provider: settings.provider || 'claude',
         apiKey: '',
         model: settings.model,
         baseUrl: settings.baseUrl,
@@ -60,6 +62,7 @@ export default function SettingsPage() {
 
   const handleSave = async () => {
     const updates: AiSettingsUpdate = {};
+    if (form.provider !== (settings?.provider || 'claude')) updates.provider = form.provider;
     if (apiKeyDirty && form.apiKey) updates.apiKey = form.apiKey;
     if (form.model !== settings?.model) updates.model = form.model;
     if (form.baseUrl !== settings?.baseUrl) updates.baseUrl = form.baseUrl;
@@ -119,6 +122,39 @@ export default function SettingsPage() {
             <div className="card p-6">
               <h2 className="text-lg font-semibold text-qq-text mb-4">连接设置</h2>
               <div className="space-y-4">
+                {/* Provider Selector */}
+                <div>
+                  <label className="block text-sm font-medium text-qq-text mb-2">
+                    AI 服务商
+                  </label>
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setForm({ ...form, provider: 'claude' })}
+                      className={`flex-1 p-3 rounded-qq border-2 transition-colors text-left ${
+                        form.provider === 'claude'
+                          ? 'border-qq-blue bg-blue-50'
+                          : 'border-gray-200 hover:border-gray-300'
+                      }`}
+                    >
+                      <div className="text-sm font-medium text-qq-text">Claude (Anthropic)</div>
+                      <div className="text-xs text-qq-text-secondary mt-0.5">anthropic.com API</div>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setForm({ ...form, provider: 'openai' })}
+                      className={`flex-1 p-3 rounded-qq border-2 transition-colors text-left ${
+                        form.provider === 'openai'
+                          ? 'border-qq-blue bg-blue-50'
+                          : 'border-gray-200 hover:border-gray-300'
+                      }`}
+                    >
+                      <div className="text-sm font-medium text-qq-text">OpenAI 兼容</div>
+                      <div className="text-xs text-qq-text-secondary mt-0.5">支持中转站 / 代理</div>
+                    </button>
+                  </div>
+                </div>
+
                 <div>
                   <label className="block text-sm font-medium text-qq-text mb-1">
                     API Key
@@ -128,7 +164,7 @@ export default function SettingsPage() {
                       type={showApiKey ? 'text' : 'password'}
                       value={form.apiKey}
                       onChange={(e) => { setForm({ ...form, apiKey: e.target.value }); setApiKeyDirty(true); }}
-                      placeholder={settings?.hasApiKey ? 'API Key 已设置 (留空保持不变)' : 'sk-ant-...'}
+                      placeholder={settings?.hasApiKey ? 'API Key 已设置 (留空保持不变)' : (form.provider === 'openai' ? 'sk-...' : 'sk-ant-...')}
                       className="input-field pr-10"
                     />
                     <button
@@ -150,10 +186,10 @@ export default function SettingsPage() {
                     type="text"
                     value={form.baseUrl}
                     onChange={(e) => setForm({ ...form, baseUrl: e.target.value })}
-                    placeholder="留空使用官方地址 (https://api.anthropic.com)"
+                    placeholder={form.provider === 'openai' ? '留空使用官方地址 (https://api.openai.com)' : '留空使用官方地址 (https://api.anthropic.com)'}
                     className="input-field"
                   />
-                  <p className="text-xs text-qq-text-secondary mt-1">可选，用于自定义 API 代理地址</p>
+                  <p className="text-xs text-qq-text-secondary mt-1">可选，用于自定义 API 代理地址（中转站填这里）</p>
                 </div>
               </div>
             </div>
@@ -169,11 +205,13 @@ export default function SettingsPage() {
                   type="text"
                   value={form.model}
                   onChange={(e) => setForm({ ...form, model: e.target.value })}
-                  placeholder="claude-sonnet-4-20250514"
+                  placeholder={form.provider === 'openai' ? 'gpt-4o' : 'claude-sonnet-4-20250514'}
                   className="input-field"
                 />
                 <p className="text-xs text-qq-text-secondary mt-1">
-                  例如: claude-sonnet-4-20250514, claude-haiku-4-5-20251001, claude-opus-4-7
+                  {form.provider === 'openai'
+                    ? '例如: gpt-4o, gpt-4o-mini, gpt-3.5-turbo, 或中转站支持的模型 ID'
+                    : '例如: claude-sonnet-4-20250514, claude-haiku-4-5-20251001, claude-opus-4-7'}
                 </p>
               </div>
             </div>

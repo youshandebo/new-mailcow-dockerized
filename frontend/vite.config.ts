@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
+  base: '/webmail/',
   server: {
     port: 5173,
     proxy: {
@@ -15,5 +16,9 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
+  },
+  define: {
+    'import.meta.env.VITE_API_BASE': JSON.stringify('/webmail/api'),
+    'import.meta.env.VITE_BASE_PATH': JSON.stringify('/webmail'),
   },
 });
