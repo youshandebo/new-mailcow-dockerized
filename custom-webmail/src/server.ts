@@ -15,6 +15,9 @@ import settingsRoutes from './routes/settings';
 
 const app = express();
 
+// Trust proxy (behind nginx)
+app.set('trust proxy', 1);
+
 // Security
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors({

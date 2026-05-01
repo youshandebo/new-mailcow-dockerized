@@ -51,6 +51,8 @@ const mailbox_1 = __importDefault(require("./routes/mailbox"));
 const ai_1 = __importDefault(require("./routes/ai"));
 const settings_1 = __importDefault(require("./routes/settings"));
 const app = (0, express_1.default)();
+// Trust proxy (behind nginx)
+app.set('trust proxy', 1);
 // Security
 app.use((0, helmet_1.default)({ contentSecurityPolicy: false }));
 app.use((0, cors_1.default)({
