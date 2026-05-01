@@ -5,20 +5,53 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const axios_1 = __importDefault(require("axios"));
 const config_1 = require("../config");
 const imapService_1 = require("../services/imapService");
 const mailcowApiService_1 = require("../services/mailcowApiService");
 const logger_1 = require("../utils/logger");
 const router = (0, express_1.Router)();
+async function verifyCredentials(email, password) {
+    try {
+        // Use the same auth endpoint as dovecot's passwd-verify.lua
+        const res = await axios_1.default.post('https://nginx-mailcow:9082', {
+            username: email,
+            password: password,
+            service: 'imap',
+        }, {
+            httpsAgent: new (require('https').Agent)({ rejectUnauthorized: false }),
+            timeout: 10000,
+        });
+        return res.data?.success === true;
+    }
+    catch (err) {
+        // 401 means wrong password, anything else is a server error
+        if (err.response?.status === 401) {
+            return false;
+        }
+        logger_1.logger.error('Auth endpoint error', { error: err.message, status: err.response?.status });
+        // Fall back to IMAP login if HTTP auth endpoint is unavailable
+        try {
+            await imapService_1.imapService.connect('temp-' + email, config_1.config.imap.host, config_1.config.imap.port, email, password, config_1.config.imap.tls);
+            await imapService_1.imapService.disconnect('temp-' + email);
+            return true;
+        }
+        catch {
+            return false;
+        }
+    }
+}
 router.post('/login', async (req, res) => {
     try {
         const { email, password } = req.body;
         if (!email || !password) {
             return res.status(400).json({ error: 'Email and password required' });
         }
-        // Authenticate via IMAP LOGIN
-        await imapService_1.imapService.connect('temp-' + email, config_1.config.imap.host, config_1.config.imap.port, email, password, config_1.config.imap.tls);
-        await imapService_1.imapService.disconnect('temp-' + email);
+        // Verify credentials via mailcow HTTP API (same as SOGo)
+        const isValid = await verifyCredentials(email, password);
+        if (!isValid) {
+            return res.status(401).json({ error: 'Invalid credentials' });
+        }
         // Create JWT
         const user = { id: email, email, name: email.split('@')[0] };
         const token = jsonwebtoken_1.default.sign(user, config_1.config.jwt.secret, { expiresIn: 24 * 60 * 60 });
@@ -28,14 +61,14 @@ router.post('/login', async (req, res) => {
             sameSite: 'lax',
             maxAge: 24 * 60 * 60 * 1000,
         });
-        // Establish persistent IMAP connection
+        // Establish persistent IMAP connection for mailbox operations
         await imapService_1.imapService.connect(email, config_1.config.imap.host, config_1.config.imap.port, email, password, config_1.config.imap.tls);
         const isAdmin = await mailcowApiService_1.mailcowApiService.isDomainAdmin(email).catch(() => false);
         logger_1.logger.info('User logged in', { email, isAdmin });
         res.json({ user, isAdmin });
     }
     catch (err) {
-        logger_1.logger.error('Login failed', { error: err.message, code: err.code, stack: err.stack?.substring(0, 300) });
+        logger_1.logger.error('Login failed', { error: err.message, code: err.code });
         res.status(401).json({ error: 'Invalid credentials' });
     }
 });
