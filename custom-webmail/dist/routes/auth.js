@@ -35,7 +35,7 @@ router.post('/login', async (req, res) => {
         res.json({ user, isAdmin });
     }
     catch (err) {
-        logger_1.logger.error('Login failed', { error: err.message });
+        logger_1.logger.error('Login failed', { error: err.message, code: err.code, stack: err.stack?.substring(0, 300) });
         res.status(401).json({ error: 'Invalid credentials' });
     }
 });
