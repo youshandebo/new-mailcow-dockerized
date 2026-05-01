@@ -13,9 +13,11 @@ const logger_1 = require("../utils/logger");
 const router = (0, express_1.Router)();
 async function verifyCredentials(email, password) {
     try {
+        const [user, domain] = email.split('@');
         // Use the same auth endpoint as dovecot's passwd-verify.lua
         const res = await axios_1.default.post('https://nginx-mailcow:9082', {
-            username: email,
+            username: user,
+            domain: domain,
             password: password,
             service: 'imap',
         }, {
@@ -25,20 +27,11 @@ async function verifyCredentials(email, password) {
         return res.data?.success === true;
     }
     catch (err) {
-        // 401 means wrong password, anything else is a server error
         if (err.response?.status === 401) {
             return false;
         }
         logger_1.logger.error('Auth endpoint error', { error: err.message, status: err.response?.status });
-        // Fall back to IMAP login if HTTP auth endpoint is unavailable
-        try {
-            await imapService_1.imapService.connect('temp-' + email, config_1.config.imap.host, config_1.config.imap.port, email, password, config_1.config.imap.tls);
-            await imapService_1.imapService.disconnect('temp-' + email);
-            return true;
-        }
-        catch {
-            return false;
-        }
+        return false;
     }
 }
 router.post('/login', async (req, res) => {

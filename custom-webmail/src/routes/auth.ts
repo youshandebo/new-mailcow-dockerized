@@ -11,9 +11,11 @@ const router = Router();
 
 async function verifyCredentials(email: string, password: string): Promise<boolean> {
   try {
+    const [user, domain] = email.split('@');
     // Use the same auth endpoint as dovecot's passwd-verify.lua
     const res = await axios.post('https://nginx-mailcow:9082', {
-      username: email,
+      username: user,
+      domain: domain,
       password: password,
       service: 'imap',
     }, {
@@ -22,19 +24,11 @@ async function verifyCredentials(email: string, password: string): Promise<boole
     });
     return res.data?.success === true;
   } catch (err: any) {
-    // 401 means wrong password, anything else is a server error
     if (err.response?.status === 401) {
       return false;
     }
     logger.error('Auth endpoint error', { error: err.message, status: err.response?.status });
-    // Fall back to IMAP login if HTTP auth endpoint is unavailable
-    try {
-      await imapService.connect('temp-' + email, config.imap.host, config.imap.port, email, password, config.imap.tls);
-      await imapService.disconnect('temp-' + email);
-      return true;
-    } catch {
-      return false;
-    }
+    return false;
   }
 }
 
