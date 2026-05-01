@@ -9,14 +9,14 @@ import { logger } from '../utils/logger';
 
 const router = Router();
 
-async function verifyCredentials(email: string, password: string): Promise<boolean> {
+async function verifyCredentials(email: string, password: string, clientIp: string): Promise<boolean> {
   try {
     const [user, domain] = email.split('@');
-    // Use the same auth endpoint as dovecot's passwd-verify.lua
     const res = await axios.post('https://nginx-mailcow:9082', {
       username: user,
       domain: domain,
       password: password,
+      real_rip: clientIp || '127.0.0.1',
       service: 'imap',
     }, {
       httpsAgent: new (require('https').Agent)({ rejectUnauthorized: false }),
@@ -41,7 +41,8 @@ router.post('/login', async (req: AuthRequest, res: Response) => {
     }
 
     // Verify credentials via mailcow HTTP API (same as SOGo)
-    const isValid = await verifyCredentials(email, password);
+    const clientIp = req.ip || req.socket.remoteAddress || '127.0.0.1';
+    const isValid = await verifyCredentials(email, password, clientIp);
     if (!isValid) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }

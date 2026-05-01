@@ -11,14 +11,14 @@ const imapService_1 = require("../services/imapService");
 const mailcowApiService_1 = require("../services/mailcowApiService");
 const logger_1 = require("../utils/logger");
 const router = (0, express_1.Router)();
-async function verifyCredentials(email, password) {
+async function verifyCredentials(email, password, clientIp) {
     try {
         const [user, domain] = email.split('@');
-        // Use the same auth endpoint as dovecot's passwd-verify.lua
         const res = await axios_1.default.post('https://nginx-mailcow:9082', {
             username: user,
             domain: domain,
             password: password,
+            real_rip: clientIp || '127.0.0.1',
             service: 'imap',
         }, {
             httpsAgent: new (require('https').Agent)({ rejectUnauthorized: false }),
@@ -41,7 +41,8 @@ router.post('/login', async (req, res) => {
             return res.status(400).json({ error: 'Email and password required' });
         }
         // Verify credentials via mailcow HTTP API (same as SOGo)
-        const isValid = await verifyCredentials(email, password);
+        const clientIp = req.ip || req.socket.remoteAddress || '127.0.0.1';
+        const isValid = await verifyCredentials(email, password, clientIp);
         if (!isValid) {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
