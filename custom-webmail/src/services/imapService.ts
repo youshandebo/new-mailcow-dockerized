@@ -41,6 +41,7 @@ class ImapService {
       secure: tls,
       auth: { user, pass: password },
       logger: false,
+      tls: tls ? { rejectUnauthorized: false } : undefined,
     });
 
     await client.connect();
