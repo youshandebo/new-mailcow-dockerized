@@ -1,3 +1,4 @@
+/* QQ Mail Style User Settings */
 .pagination a {
   text-decoration: none !important;
 }
@@ -17,7 +18,9 @@
   text-align: center;
   font-style: italic;
   padding: 10px;
-  background: #F5F5F5;
+  background: #fafbfc;
+  border-radius: 6px;
+  color: #8c8c8c;
 }
 .mass-actions-user {
   user-select: none;
@@ -76,7 +79,7 @@ svg {
 }
 .noUi-handle {
   border: 1px solid #e2e2e2;
-  border-radius: 0px;
+  border-radius: 4px;
   background: #eee;
   cursor: default;
   box-shadow: none;
@@ -89,7 +92,7 @@ svg {
   background-color: #eee;
   border-color: #e2e2e2;
   margin-top: 1px;
-border-bottom-width: 3px;
+  border-bottom-width: 3px;
 }
 .noUi-handle::after, .noUi-handle::before {
   background: #c6c6c6;
@@ -97,12 +100,12 @@ border-bottom-width: 3px;
 }
 .noUi-target {
   background: transparent;
-  border-radius: 0px;
+  border-radius: 4px;
   border: 1px solid #D3D3D3;
   box-shadow: none;
 }
 .noUi-connects {
-  border-radius: 0px;
+  border-radius: 4px;
 }
 .label-ham,
 .label-spam,
@@ -115,7 +118,7 @@ border-bottom-width: 3px;
   cursor: pointer;
   font-size:90%;
   font-style: italic;
-  color: #158cba;
+  color: #4A90D9;
   user-select:none;
 }
 .ip-location-flag {
@@ -131,4 +134,56 @@ border-bottom-width: 3px;
 }
 .help-block-mt-0 {
   margin-top: 0px;
+}
+
+/* QQ Mail style user settings cards */
+.card {
+  border: 1px solid #e8e8e8;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  margin-bottom: 16px;
+}
+.card-header {
+  background: #fafbfc;
+  border-bottom: 1px solid #e8e8e8;
+  padding: 12px 20px;
+  font-weight: 500;
+}
+.card-body {
+  padding: 20px;
+}
+
+/* QQ Mail style tabs */
+.nav-tabs {
+  border-bottom: 2px solid #e8e8e8;
+}
+.nav-tabs .nav-link {
+  border: none;
+  padding: 10px 16px;
+  color: #595959;
+  font-size: 14px;
+  font-weight: 500;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: color 0.2s, border-color 0.2s;
+}
+.nav-tabs .nav-link:hover {
+  color: #4A90D9;
+  border-bottom-color: transparent;
+}
+.nav-tabs .nav-link.active {
+  color: #4A90D9;
+  background: none;
+  border-bottom: 2px solid #4A90D9;
+}
+
+/* QQ Mail style form controls */
+.form-control {
+  border-radius: 6px;
+  border-color: #d9d9d9;
+  font-size: 14px;
+}
+.form-control:focus {
+  border-color: #4A90D9;
+  box-shadow: 0 0 0 2px rgba(74,144,217,0.15);
 }

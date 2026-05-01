@@ -210,3 +210,16 @@
     max-width: 1600px;
   }
 }
+
+/* QQ Mail responsive adjustments */
+@media (max-width: 991px) {
+  .qq-navbar .navbar-collapse {
+    background: rgba(0,0,0,0.05);
+    border-radius: 0 0 8px 8px;
+    padding: 8px 0;
+  }
+  .qq-navbar .navbar-nav .dropdown-menu {
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+}

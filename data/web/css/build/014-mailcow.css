@@ -38,7 +38,7 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: #fbfbfb;
+  background-color: #f5f6fa;
 }
 #maxmsgsize { min-width: 80px; }
 #slider1 .slider-selection {
@@ -84,6 +84,81 @@ body {
 .navbar-fixed-bottom .navbar-collapse,
 .navbar-fixed-top .navbar-collapse {
   max-height: 1000px
+}
+
+/* QQ Mail Style Navbar */
+.qq-navbar {
+  background: linear-gradient(135deg, #4A90D9 0%, #357ABD 100%);
+  border: none;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  min-height: 52px;
+}
+.qq-navbar .navbar-brand {
+  padding: 8px 16px;
+}
+.qq-navbar .navbar-brand img {
+  height: 32px;
+}
+.qq-navbar .navbar-nav .nav-link {
+  color: rgba(255,255,255,0.9) !important;
+  font-size: 14px;
+  padding: 0 12px !important;
+  transition: background 0.2s;
+  border-radius: 4px;
+  margin: 4px 2px;
+}
+.qq-navbar .navbar-nav .nav-link:hover,
+.qq-navbar .navbar-nav .nav-link:focus {
+  color: #fff !important;
+  background: rgba(255,255,255,0.15);
+}
+.qq-navbar .navbar-nav .show > .nav-link,
+.qq-navbar .navbar-nav .active > .nav-link {
+  color: #fff !important;
+  background: rgba(255,255,255,0.2);
+}
+.qq-navbar .navbar-nav .dropdown-toggle::after {
+  border-top-color: rgba(255,255,255,0.7);
+}
+.qq-navbar .navbar-nav .dropdown-menu {
+  margin-top: 4px;
+  border: none;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  border-radius: 8px;
+}
+.qq-navbar .navbar-nav .dropdown-item {
+  padding: 8px 16px;
+  font-size: 14px;
+  color: #333;
+}
+.qq-navbar .navbar-nav .dropdown-item:hover,
+.qq-navbar .navbar-nav .dropdown-item.active {
+  background: #f0f5fb;
+  color: #4A90D9;
+}
+.qq-navbar .logged-in-as .nav-link {
+  font-weight: 500;
+}
+.qq-navbar .slave-info {
+  color: rgba(255,255,255,0.8);
+}
+.qq-navbar .navbar-toggler {
+  border-color: rgba(255,255,255,0.3);
+  padding: 4px 8px;
+  margin: 6px 12px;
+}
+@media (max-width: 991px) {
+  .qq-navbar .navbar-nav {
+    background: rgba(0,0,0,0.05);
+    border-radius: 8px;
+    margin: 8px 0;
+    padding: 8px 0;
+  }
+  .qq-navbar .navbar-nav .nav-link {
+    color: rgba(255,255,255,0.9) !important;
+    padding: 8px 16px !important;
+    height: auto;
+  }
 }
 .nav-tabs .nav-link, .nav-tabs .nav-link.disabled, .nav-tabs .nav-link.disabled:hover, .nav-tabs .nav-link.disabled:focus {
   border-color: #dfdfdf;
@@ -192,9 +267,10 @@ legend {
 }
 .navbar .navbar-brand {
   padding-top: 5px;
+  padding-left: 16px;
 }
 .navbar .navbar-brand img {
-  height: 40px;
+  height: 36px;
 }
 .mailcow-logo img {
   max-width: 250px;
@@ -206,7 +282,7 @@ legend {
   cursor: not-allowed;
 }
 .overlay {
-  background: #fff;
+  background: #f5f6fa;
   position: absolute;
   z-index: 10000;
   top: 0; right: 0; bottom: 0; left: 0;
@@ -239,13 +315,24 @@ legend {
 .footer {
   margin-top: 27px;
   margin-bottom: 20px;
-  color: #959595;
+  color: #8c8c8c;
   display: flex;
   flex-direction: column;
+  font-size: 13px;
 }
 .footer .version {
   margin-left: auto;
-	margin-top: 20px;
+  margin-top: 20px;
+}
+.footer .version a {
+  color: #4A90D9;
+  text-decoration: none;
+}
+.footer .version a:hover {
+  text-decoration: underline;
+}
+.footer hr {
+  border-color: #e8e8e8;
 }
 .slave-info {
   font-weight: bold;
@@ -364,12 +451,12 @@ button[aria-expanded='true'] > .caret {
 
 
 .bg-primary, .alert-primary, .btn-primary {
-  background-color: #0F688D !important;
-  border-color: #0d526d !important;
+  background-color: #4A90D9 !important;
+  border-color: #3a7bc8 !important;
 }
 .bg-info, .alert-info, .btn-info {
-  background-color: #148DBC !important;
-  border-color: #127ea8 !important;
+  background-color: #5ba0e0 !important;
+  border-color: #4a90d9 !important;
 }
 
 .bootstrap-select>.dropdown-toggle.bs-placeholder.btn-secondary {

@@ -1,3 +1,4 @@
+/* QQ Mail Style Mailbox Management */
 .pagination a {
   text-decoration: none !important;
 }
@@ -18,7 +19,9 @@
   text-align: center;
   font-style: italic;
   padding: 10px;
-  background: #F5F5F5;
+  background: #fafbfc;
+  border-radius: 6px;
+  color: #8c8c8c;
 }
 @media (min-width: 992px) {
   .container {
@@ -27,7 +30,8 @@
 }
 @media (min-width: 1920px) {
   .container {
-      width: 80%;
+      width: 85%;
+      max-width: 1400px;
   }
 }
 .mass-actions-mailbox {
@@ -64,8 +68,29 @@ table tbody tr td input[type="checkbox"] {
   line-height: 2.2;
   color: #4a4a4a!important;
   padding: .2em .4em .3em !important;
-  background-color: #ececec!important;
+  background-color: #f0f0f0!important;
+  border-radius: 4px;
 }
 .badge.bg-info .bi {
   font-size: inherit;
+}
+
+/* QQ Mail style table */
+.table {
+  font-size: 14px;
+}
+.table thead th {
+  background: #fafbfc;
+  border-bottom: 1px solid #e8e8e8;
+  font-weight: 500;
+  color: #595959;
+  padding: 10px 12px;
+}
+.table tbody td {
+  padding: 10px 12px;
+  vertical-align: middle;
+  border-bottom: 1px solid #f0f0f0;
+}
+.table tbody tr:hover {
+  background: #f5f8fc;
 }

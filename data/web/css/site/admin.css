@@ -1,3 +1,4 @@
+/* QQ Mail Style Admin Panel */
 .pagination a {
   text-decoration: none !important;
 }
@@ -7,8 +8,10 @@
 .table-responsive {
   overflow: visible !important;
 }
-.table-responsive {
-  overflow-x: scroll !important;
+@media screen and (max-width: 767px) {
+  .table-responsive {
+    overflow-x: scroll !important;
+  }
 }
 body {
   overflow-y:scroll;
@@ -20,7 +23,8 @@ body.modal-open {
 }
 @media (min-width: 992px) {
   .container {
-      width: 80%;
+      width: 85%;
+      max-width: 1400px;
   }
 }
 .mass-actions-admin {
@@ -80,4 +84,98 @@ table tbody tr td input[type="checkbox"] {
 }
 .dkim-label {
   margin: 0 0 8px !important;
+}
+
+/* QQ Mail style cards */
+.card {
+  border: 1px solid #e8e8e8;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.card-header {
+  background: #fafbfc;
+  border-bottom: 1px solid #e8e8e8;
+  padding: 12px 20px;
+  font-weight: 500;
+}
+.card-body {
+  padding: 20px;
+}
+
+/* QQ Mail style tabs */
+.nav-tabs {
+  border-bottom: 2px solid #e8e8e8;
+}
+.nav-tabs .nav-link {
+  border: none;
+  padding: 10px 16px;
+  color: #595959;
+  font-size: 14px;
+  font-weight: 500;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: color 0.2s, border-color 0.2s;
+}
+.nav-tabs .nav-link:hover {
+  color: #4A90D9;
+  border-bottom-color: transparent;
+}
+.nav-tabs .nav-link.active {
+  color: #4A90D9;
+  background: none;
+  border-bottom: 2px solid #4A90D9;
+}
+
+/* QQ Mail style tables */
+.table {
+  font-size: 14px;
+}
+.table thead th {
+  background: #fafbfc;
+  border-bottom: 1px solid #e8e8e8;
+  font-weight: 500;
+  color: #595959;
+  padding: 10px 12px;
+}
+.table tbody td {
+  padding: 10px 12px;
+  vertical-align: middle;
+  border-bottom: 1px solid #f0f0f0;
+}
+.table tbody tr:hover {
+  background: #f5f8fc;
+}
+
+/* QQ Mail style buttons */
+.btn-primary {
+  background: #4A90D9;
+  border-color: #4A90D9;
+  border-radius: 6px;
+  font-size: 14px;
+  padding: 6px 16px;
+}
+.btn-primary:hover {
+  background: #357ABD;
+  border-color: #357ABD;
+}
+.btn-outline-primary {
+  color: #4A90D9;
+  border-color: #4A90D9;
+  border-radius: 6px;
+}
+.btn-outline-primary:hover {
+  background: #4A90D9;
+  color: #fff;
+}
+.btn-success {
+  border-radius: 6px;
+}
+.btn-danger {
+  border-radius: 6px;
+}
+.btn-warning {
+  border-radius: 6px;
+}
+.btn-info {
+  border-radius: 6px;
 }

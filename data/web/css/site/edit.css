@@ -1,3 +1,4 @@
+/* QQ Mail Style Edit Forms */
 .pagination a {
   text-decoration: none !important;
 }
@@ -17,7 +18,9 @@
   text-align: center;
   font-style: italic;
   padding: 10px;
-  background: #F5F5F5;
+  background: #fafbfc;
+  border-radius: 6px;
+  color: #8c8c8c;
 }
 .mass-actions-user {
   user-select: none;
@@ -39,4 +42,38 @@
 #sender_acl_disabled {
   display:none;
   margin-top:10px;
+}
+
+/* QQ Mail style form */
+.card {
+  border: 1px solid #e8e8e8;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.card-header {
+  background: #fafbfc;
+  border-bottom: 1px solid #e8e8e8;
+  padding: 12px 20px;
+  font-weight: 500;
+}
+.card-body {
+  padding: 20px;
+}
+.form-control {
+  border-radius: 6px;
+  border-color: #d9d9d9;
+  font-size: 14px;
+}
+.form-control:focus {
+  border-color: #4A90D9;
+  box-shadow: 0 0 0 2px rgba(74,144,217,0.15);
+}
+.btn-primary {
+  background: #4A90D9;
+  border-color: #4A90D9;
+  border-radius: 6px;
+}
+.btn-primary:hover {
+  background: #357ABD;
+  border-color: #357ABD;
 }
