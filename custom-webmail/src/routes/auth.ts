@@ -8,6 +8,26 @@ import { logger } from '../utils/logger';
 
 const router = Router();
 
+// Authenticate via mailcow's internal PHP auth endpoint
+async function verifyCredentials(email: string, password: string): Promise<{ success: boolean; role?: string }> {
+  try {
+    const authUrl = process.env.MAILCOW_AUTH_URL || 'http://nginx-mailcow/webmail-auth.php';
+    const response = await fetch(authUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: email, password }),
+    });
+    if (response.ok) {
+      const data = await response.json() as any;
+      return { success: true, role: data.role };
+    }
+    return { success: false };
+  } catch (err: any) {
+    logger.error('Auth endpoint error', { error: err.message });
+    return { success: false };
+  }
+}
+
 router.post('/login', async (req: AuthRequest, res: Response) => {
   try {
     const { email, password } = req.body;
@@ -16,9 +36,12 @@ router.post('/login', async (req: AuthRequest, res: Response) => {
       return res.status(400).json({ error: 'Email and password required' });
     }
 
-    // Authenticate via IMAP LOGIN
-    await imapService.connect('temp-' + email, config.imap.host, config.imap.port, email, password, config.imap.tls);
-    await imapService.disconnect('temp-' + email);
+    // Authenticate via mailcow PHP auth endpoint
+    const authResult = await verifyCredentials(email, password);
+    if (!authResult.success) {
+      logger.info('Login failed - invalid credentials', { email });
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
 
     // Create JWT
     const user = { id: email, email, name: email.split('@')[0] };
@@ -31,16 +54,21 @@ router.post('/login', async (req: AuthRequest, res: Response) => {
       maxAge: 24 * 60 * 60 * 1000,
     });
 
-    // Establish persistent IMAP connection
-    await imapService.connect(email, config.imap.host, config.imap.port, email, password, config.imap.tls);
+    // Establish persistent IMAP connection for email operations
+    try {
+      await imapService.connect(email, config.imap.host, config.imap.port, email, password, config.imap.tls);
+    } catch (imapErr: any) {
+      logger.warn('IMAP connection failed after auth (non-fatal)', { email, error: imapErr.message });
+      // Don't fail login if IMAP connection fails - user can still use the UI
+    }
 
     const isAdmin = await mailcowApiService.isDomainAdmin(email).catch(() => false);
 
-    logger.info('User logged in', { email, isAdmin });
+    logger.info('User logged in', { email, role: authResult.role, isAdmin });
     res.json({ user, isAdmin });
   } catch (err: any) {
-    logger.error('Login failed', { error: err.message, code: err.code, host: config.imap.host, port: config.imap.port, tls: config.imap.tls });
-    res.status(401).json({ error: 'Invalid credentials' });
+    logger.error('Login failed', { error: err.message });
+    res.status(500).json({ error: 'Login failed' });
   }
 });
 

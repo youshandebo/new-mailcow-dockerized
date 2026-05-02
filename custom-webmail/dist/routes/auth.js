@@ -10,15 +10,38 @@ const imapService_1 = require("../services/imapService");
 const mailcowApiService_1 = require("../services/mailcowApiService");
 const logger_1 = require("../utils/logger");
 const router = (0, express_1.Router)();
+// Authenticate via mailcow's internal PHP auth endpoint
+async function verifyCredentials(email, password) {
+    try {
+        const authUrl = process.env.MAILCOW_AUTH_URL || 'http://nginx-mailcow/webmail-auth.php';
+        const response = await fetch(authUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: email, password }),
+        });
+        if (response.ok) {
+            const data = await response.json();
+            return { success: true, role: data.role };
+        }
+        return { success: false };
+    }
+    catch (err) {
+        logger_1.logger.error('Auth endpoint error', { error: err.message });
+        return { success: false };
+    }
+}
 router.post('/login', async (req, res) => {
     try {
         const { email, password } = req.body;
         if (!email || !password) {
             return res.status(400).json({ error: 'Email and password required' });
         }
-        // Authenticate via IMAP LOGIN
-        await imapService_1.imapService.connect('temp-' + email, config_1.config.imap.host, config_1.config.imap.port, email, password, config_1.config.imap.tls);
-        await imapService_1.imapService.disconnect('temp-' + email);
+        // Authenticate via mailcow PHP auth endpoint
+        const authResult = await verifyCredentials(email, password);
+        if (!authResult.success) {
+            logger_1.logger.info('Login failed - invalid credentials', { email });
+            return res.status(401).json({ error: 'Invalid credentials' });
+        }
         // Create JWT
         const user = { id: email, email, name: email.split('@')[0] };
         const token = jsonwebtoken_1.default.sign(user, config_1.config.jwt.secret, { expiresIn: 24 * 60 * 60 });
@@ -28,15 +51,21 @@ router.post('/login', async (req, res) => {
             sameSite: 'lax',
             maxAge: 24 * 60 * 60 * 1000,
         });
-        // Establish persistent IMAP connection
-        await imapService_1.imapService.connect(email, config_1.config.imap.host, config_1.config.imap.port, email, password, config_1.config.imap.tls);
+        // Establish persistent IMAP connection for email operations
+        try {
+            await imapService_1.imapService.connect(email, config_1.config.imap.host, config_1.config.imap.port, email, password, config_1.config.imap.tls);
+        }
+        catch (imapErr) {
+            logger_1.logger.warn('IMAP connection failed after auth (non-fatal)', { email, error: imapErr.message });
+            // Don't fail login if IMAP connection fails - user can still use the UI
+        }
         const isAdmin = await mailcowApiService_1.mailcowApiService.isDomainAdmin(email).catch(() => false);
-        logger_1.logger.info('User logged in', { email, isAdmin });
+        logger_1.logger.info('User logged in', { email, role: authResult.role, isAdmin });
         res.json({ user, isAdmin });
     }
     catch (err) {
-        logger_1.logger.error('Login failed', { error: err.message, code: err.code, host: config_1.config.imap.host, port: config_1.config.imap.port, tls: config_1.config.imap.tls });
-        res.status(401).json({ error: 'Invalid credentials' });
+        logger_1.logger.error('Login failed', { error: err.message });
+        res.status(500).json({ error: 'Login failed' });
     }
 });
 router.post('/logout', async (req, res) => {

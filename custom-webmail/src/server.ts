@@ -12,6 +12,7 @@ import authRoutes from './routes/auth';
 import mailboxRoutes from './routes/mailbox';
 import aiRoutes from './routes/ai';
 import settingsRoutes from './routes/settings';
+import aiProxyRoutes from './routes/aiProxy';
 
 const app = express();
 
@@ -48,6 +49,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/mail', authMiddleware, mailboxRoutes);
 app.use('/api/ai', authMiddleware, aiRoutes);
 app.use('/api/settings', authMiddleware, settingsRoutes);
+app.use('/api/ai-proxy', aiProxyRoutes);
 
 // Error handler
 app.use(errorHandler);

@@ -15,6 +15,12 @@
     </li>
 
     <li class="nav-item dropdown">
+      <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">&#x1F916; AI</a>
+      <ul class="dropdown-menu">
+        <li><button class="dropdown-item" data-bs-target="#tab-config-ai" aria-selected="false" aria-controls="tab-config-ai" role="tab" data-bs-toggle="tab">AI 设置</button></li>
+      </ul>
+    </li>
+    <li class="nav-item dropdown">
       <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">{{ lang.admin.options }}</a>
       <ul class="dropdown-menu">
         <li><button class="dropdown-item" data-bs-target="#tab-config-dkim" aria-selected="false" aria-controls="tab-config-dkim" role="tab" data-bs-toggle="tab">{{ lang.admin.dkim_keys }}</button></li>
@@ -53,6 +59,7 @@
         {% include 'admin/tab-config-quota.twig' %}
         {% include 'admin/tab-config-rsettings.twig' %}
         {% include 'admin/tab-config-customize.twig' %}
+        {% include 'admin/tab-config-ai.twig' %}
         {% include 'admin/tab-config-password-settings.twig' %}
         {% include 'admin/tab-sys-mails.twig' %}
         {% include 'admin/tab-globalfilter-regex.twig' %}

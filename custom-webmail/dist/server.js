@@ -50,6 +50,7 @@ const auth_2 = __importDefault(require("./routes/auth"));
 const mailbox_1 = __importDefault(require("./routes/mailbox"));
 const ai_1 = __importDefault(require("./routes/ai"));
 const settings_1 = __importDefault(require("./routes/settings"));
+const aiProxy_1 = __importDefault(require("./routes/aiProxy"));
 const app = (0, express_1.default)();
 // Trust proxy (behind nginx)
 app.set('trust proxy', 1);
@@ -79,6 +80,7 @@ app.use('/api/auth', auth_2.default);
 app.use('/api/mail', auth_1.authMiddleware, mailbox_1.default);
 app.use('/api/ai', auth_1.authMiddleware, ai_1.default);
 app.use('/api/settings', auth_1.authMiddleware, settings_1.default);
+app.use('/api/ai-proxy', aiProxy_1.default);
 // Error handler
 app.use(errorHandler_1.errorHandler);
 // Start server
