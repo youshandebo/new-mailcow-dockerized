@@ -31,6 +31,15 @@
       background: var(--mc-bg) !important;
     }
 
+    /* Prevent text cursor on clickable elements */
+    md-list-item, md-tab-item, md-toolbar .md-button,
+    .md-button, md-content md-list-item, md-option,
+    [ng-click], [ui-sref] {
+      cursor: pointer !important;
+      user-select: none !important;
+      -webkit-user-select: none !important;
+    }
+
     /* --- Toolbar --- */
     md-toolbar, md-toolbar.md-default-theme, md-toolbar.md-hue-2 {
       background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
@@ -50,6 +59,9 @@
       color: rgba(255,255,255,0.9) !important;
       border-radius: var(--mc-radius) !important;
       transition: background-color 0.15s ease, color 0.15s ease !important;
+      cursor: pointer !important;
+      user-select: none !important;
+      -webkit-user-select: none !important;
     }
     md-toolbar a:hover, md-toolbar button:hover, md-toolbar .md-button:hover {
       color: #fff !important;
@@ -96,6 +108,9 @@
       font-size: 13px !important;
       border-radius: var(--mc-radius) !important;
       transition: background-color 0.15s ease, color 0.15s ease !important;
+      cursor: pointer !important;
+      user-select: none !important;
+      -webkit-user-select: none !important;
     }
     md-sidenav md-list-item:hover, md-sidenav md-list-item .md-button:hover {
       background: var(--mc-primary-light) !important;
@@ -159,6 +174,9 @@
       border-bottom: 1px solid #f1f5f9 !important;
       padding: 12px 16px !important;
       transition: background-color 0.15s ease, border-color 0.15s ease !important;
+      cursor: pointer !important;
+      user-select: none !important;
+      -webkit-user-select: none !important;
     }
     md-content md-list-item:hover {
       background: var(--mc-primary-light) !important;
@@ -267,6 +285,9 @@
       color: var(--mc-text-secondary) !important;
       font-size: 14px !important;
       transition: color 0.15s ease !important;
+      cursor: pointer !important;
+      user-select: none !important;
+      -webkit-user-select: none !important;
     }
     md-tabs md-tab-item.md-active, md-tab-item.md-active {
       color: var(--mc-primary) !important;
