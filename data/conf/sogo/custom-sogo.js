@@ -777,22 +777,50 @@
   function setupFolderFix() {
     var injector = angular.element(document.body).injector();
     var rootScope = injector.get('$rootScope');
-    var location = injector.get('$location');
+    var http = injector.get('$http');
+    var timeout = injector.get('$timeout');
 
-    // Track the last clicked folder element and timestamp
-    var lastClicked = null;
-    var lastClickTs = 0;
-    var navigationPending = false;
+    var routeChangeInProgress = false;
+    var lastClickedItem = null;
+    var routeChangeTimer = null;
 
-    // Listen for route changes to track pending navigation
+    // Track route changes
     rootScope.$on('$routeChangeStart', function() {
-      navigationPending = true;
+      routeChangeInProgress = true;
+      if (routeChangeTimer) clearTimeout(routeChangeTimer);
+      // Safety: if route change hangs for >5s, reset
+      routeChangeTimer = setTimeout(function() {
+        routeChangeInProgress = false;
+      }, 5000);
     });
+
     rootScope.$on('$routeChangeSuccess', function() {
-      navigationPending = false;
+      routeChangeInProgress = false;
+      if (routeChangeTimer) clearTimeout(routeChangeTimer);
+
+      // Check if user clicked a different folder during loading
+      if (lastClickedItem) {
+        var item = lastClickedItem;
+        lastClickedItem = null;
+
+        // Verify the clicked folder is now active
+        timeout(function() {
+          var isActive = item.classList.contains('md-active') ||
+                         item.classList.contains('selected') ||
+                         item.querySelector('.md-active') ||
+                         item.querySelector('.selected');
+          if (!isActive) {
+            console.log('[Folder Fix] Wrong folder active after route change, re-clicking');
+            var btn = item.querySelector('.md-button') || item;
+            angular.element(btn).triggerHandler('click');
+          }
+        }, 100);
+      }
     });
+
     rootScope.$on('$routeChangeError', function() {
-      navigationPending = false;
+      routeChangeInProgress = false;
+      if (routeChangeTimer) clearTimeout(routeChangeTimer);
     });
 
     // Intercept sidebar folder clicks
@@ -800,42 +828,15 @@
       var folderItem = e.target.closest('md-sidenav md-list-item');
       if (!folderItem) return;
 
-      var now = Date.now();
-      var isRapidClick = (now - lastClickTs) < 500;
-      lastClickTs = now;
+      lastClickedItem = folderItem;
 
-      // If clicking the same folder, let it through normally
-      if (folderItem === lastClicked) return;
-      lastClicked = folderItem;
-
-      // If there's a pending navigation and user clicked a different folder,
-      // the new click might get swallowed. Force it through after a delay.
-      if (isRapidClick || navigationPending) {
-        var target = folderItem;
-        setTimeout(function() {
-          // Check if this folder became active
-          var isActive = target.classList.contains('md-active') ||
-                         target.classList.contains('selected') ||
-                         target.querySelector('.md-active') ||
-                         target.querySelector('.selected');
-          if (!isActive) {
-            // Navigation didn't happen - trigger it via AngularJS
-            try {
-              var scope = angular.element(target).scope();
-              if (scope && scope.$apply) {
-                scope.$apply(function() {
-                  // Simulate the click on the inner button
-                  var btn = target.querySelector('.md-button') || target;
-                  angular.element(btn).triggerHandler('click');
-                });
-              }
-            } catch(err) {
-              // Fallback: just click it again
-              var btn = target.querySelector('.md-button') || target;
-              btn.click();
-            }
-          }
-        }, 400);
+      // If a route change is in progress, block the click and re-trigger after
+      if (routeChangeInProgress) {
+        e.stopPropagation();
+        e.preventDefault();
+        console.log('[Folder Fix] Blocked click during pending route change');
+        // The $routeChangeSuccess handler will re-trigger it
+        return;
       }
     }, true);
 
