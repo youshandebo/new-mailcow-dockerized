@@ -450,6 +450,8 @@ services:
         - ./data/web/inc/functions.auth.inc.php:/mailcowauth/functions.auth.inc.php:z
         - ./data/web/inc/sessions.inc.php:/mailcowauth/sessions.inc.php:z
         - sogo-web-vol-1:/usr/local/lib/GNUstep/SOGo/
+        - ./data/conf/sogo/custom-sogo.js:/usr/local/lib/GNUstep/SOGo/WebServerResources/js/custom-sogo.js:z
+        - ./data/conf/sogo/custom-theme.js:/usr/local/lib/GNUstep/SOGo/WebServerResources/js/theme.js:z
       ports:
         - "${HTTPS_BIND:-}:${HTTPS_PORT:-28443}:${HTTPS_PORT:-28443}"
         - "${HTTP_BIND:-}:${HTTP_PORT:-28080}:${HTTP_PORT:-28080}"
