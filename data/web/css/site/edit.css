@@ -53,8 +53,8 @@
   transition: all 0.2s ease;
 }
 .form-control:focus {
-  border-color: #6366f1;
-  box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
 }
 
 /* Buttons */
@@ -70,9 +70,9 @@
   transform: translateY(0) scale(0.98);
 }
 .btn-primary {
-  background: linear-gradient(135deg, #6366f1, #4f46e5);
-  border-color: #4f46e5;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  border-color: #1d4ed8;
 }
 .btn-primary:hover {
-  background: linear-gradient(135deg, #4f46e5, #4338ca);
+  background: linear-gradient(135deg, #1d4ed8, #1e40af);
 }

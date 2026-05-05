@@ -16,7 +16,7 @@
 }
 .footer-add-item:hover {
   background: #eef2ff;
-  color: #6366f1;
+  color: #2563eb;
 }
 @media (min-width: 992px) {
   .container { width: 100%; }
@@ -82,9 +82,9 @@ table tbody tr td input[type="checkbox"] { cursor: pointer; }
   transform: translateY(0) scale(0.98);
 }
 .btn-primary {
-  background: linear-gradient(135deg, #6366f1, #4f46e5);
-  border-color: #4f46e5;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  border-color: #1d4ed8;
 }
 .btn-primary:hover {
-  background: linear-gradient(135deg, #4f46e5, #4338ca);
+  background: linear-gradient(135deg, #1d4ed8, #1e40af);
 }

@@ -89,7 +89,7 @@ svg { display: inline-block; vertical-align: middle; }
   cursor: pointer;
   font-size: 90%;
   font-style: italic;
-  color: #6366f1;
+  color: #2563eb;
   user-select: none;
 }
 .ip-location-flag { border-radius: 4px; top: 3px; }
@@ -133,13 +133,13 @@ svg { display: inline-block; vertical-align: middle; }
   transition: all 0.25s ease;
 }
 .nav-tabs .nav-link:hover {
-  color: #6366f1;
+  color: #2563eb;
   border-bottom-color: transparent;
 }
 .nav-tabs .nav-link.active {
-  color: #6366f1;
+  color: #2563eb;
   background: none;
-  border-bottom: 2px solid #6366f1;
+  border-bottom: 2px solid #2563eb;
   font-weight: 600;
 }
 
@@ -151,6 +151,6 @@ svg { display: inline-block; vertical-align: middle; }
   transition: all 0.2s ease;
 }
 .form-control:focus {
-  border-color: #6366f1;
-  box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
 }

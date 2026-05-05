@@ -60,8 +60,8 @@ legend {
 }
 
 .page-item.active .page-link {
-    background-color: #4A90D9 !important;
-    border-color: #4A90D9 !important;
+    background-color: #2563eb !important;
+    border-color: #2563eb !important;
 }
 
 .btn-secondary:focus, .btn-secondary:hover, .btn-group.open .dropdown-toggle.btn-secondary {
@@ -114,7 +114,7 @@ legend {
 .qq-navbar .navbar-nav .dropdown-item:hover,
 .qq-navbar .navbar-nav .dropdown-item.active {
     background: #3a3a50;
-    color: #4A90D9;
+    color: #2563eb;
 }
 
 .navbar.bg-light {
@@ -211,7 +211,7 @@ input.form-control, textarea.form-control {
 }
 input.form-control:focus, textarea.form-control {
     background-color: #2a2a3e !important;
-    border-color: #4A90D9;
+    border-color: #2563eb;
 }
 input.form-control:disabled, textarea.form-disabled {
     color: #8e8e93 !important;
@@ -238,7 +238,7 @@ input.form-control:disabled, textarea.form-disabled {
 }
 .dropdown-item.active:hover {
     color: #fff !important;
-    background-color: #4A90D9;
+    background-color: #2563eb;
 }
 .form-select {
     color: #e0e0e0!important;
@@ -265,11 +265,11 @@ input.form-control:disabled, textarea.form-disabled {
 }
 
 a {
-    color: #6ab0e0;
+    color: #60a5fa;
     text-decoration: none;
 }
 a:hover {
-    color: #4A90D9;
+    color: #2563eb;
 }
 
 .breadcrumb-item.active {
@@ -298,7 +298,7 @@ a:hover {
     background-color: #22223a;
 }
 .accordion-button:not(.collapsed) {
-    color: #6ab0e0;
+    color: #60a5fa;
     background-color: #22223a;
 }
 .accordion-button::after {
@@ -496,8 +496,8 @@ body.login-page {
     color: #e0e0e0;
 }
 .qq-form-group input:focus {
-    border-color: #4A90D9;
-    box-shadow: 0 0 0 2px rgba(74,144,217,0.2);
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(37,99,235,0.2);
 }
 .qq-form-group input::placeholder {
     color: #6a6a7e;
@@ -509,8 +509,8 @@ body.login-page {
 }
 .btn-other-login:hover {
     background: #3a3a50;
-    border-color: #4A90D9;
-    color: #4A90D9;
+    border-color: #2563eb;
+    color: #2563eb;
 }
 .help-card {
     background: #22223a;

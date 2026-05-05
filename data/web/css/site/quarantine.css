@@ -56,7 +56,7 @@ span.mail-address-item {
   display: inline-block;
   margin: 2px 6px 2px 0;
   font-size: 13px;
-  color: #4338ca;
+  color: #1e40af;
 }
 table tbody tr {
   cursor: pointer;
@@ -103,9 +103,9 @@ table tbody tr td input[type="checkbox"] { cursor: pointer; }
   transform: translateY(0) scale(0.98);
 }
 .btn-primary {
-  background: linear-gradient(135deg, #6366f1, #4f46e5);
-  border-color: #4f46e5;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  border-color: #1d4ed8;
 }
 .btn-primary:hover {
-  background: linear-gradient(135deg, #4f46e5, #4338ca);
+  background: linear-gradient(135deg, #1d4ed8, #1e40af);
 }

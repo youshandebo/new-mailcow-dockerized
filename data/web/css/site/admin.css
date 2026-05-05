@@ -87,13 +87,13 @@ table tbody tr td input[type="checkbox"] { cursor: pointer; }
   position: relative;
 }
 .nav-tabs .nav-link:hover {
-  color: #6366f1;
+  color: #2563eb;
   border-bottom-color: transparent;
 }
 .nav-tabs .nav-link.active {
-  color: #6366f1;
+  color: #2563eb;
   background: none;
-  border-bottom: 2px solid #6366f1;
+  border-bottom: 2px solid #2563eb;
   font-weight: 600;
 }
 
@@ -134,23 +134,23 @@ table tbody tr td input[type="checkbox"] { cursor: pointer; }
   transform: translateY(0) scale(0.98);
 }
 .btn-primary {
-  background: linear-gradient(135deg, #6366f1, #4f46e5);
-  border-color: #4f46e5;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  border-color: #1d4ed8;
   font-weight: 500;
 }
 .btn-primary:hover {
-  background: linear-gradient(135deg, #4f46e5, #4338ca);
-  border-color: #4338ca;
-  box-shadow: 0 4px 12px rgba(99,102,241,0.3);
+  background: linear-gradient(135deg, #1d4ed8, #1e40af);
+  border-color: #1e40af;
+  box-shadow: 0 4px 12px rgba(37,99,235,0.3);
 }
 .btn-outline-primary {
-  color: #6366f1;
-  border-color: #6366f1;
+  color: #2563eb;
+  border-color: #2563eb;
 }
 .btn-outline-primary:hover {
-  background: #6366f1;
+  background: #2563eb;
   color: #fff;
-  box-shadow: 0 4px 12px rgba(99,102,241,0.3);
+  box-shadow: 0 4px 12px rgba(37,99,235,0.3);
 }
 .btn-success { border-radius: 8px; }
 .btn-danger { border-radius: 8px; }

@@ -6,8 +6,8 @@
     /* ===== Modern SOGo Theme ===== */
 
     :root {
-      --mc-primary: #6366f1;
-      --mc-primary-hover: #4f46e5;
+      --mc-primary: #2563eb;
+      --mc-primary-hover: #1d4ed8;
       --mc-primary-light: #eef2ff;
       --mc-bg: #f8fafc;
       --mc-surface: #ffffff;
@@ -33,9 +33,9 @@
 
     /* --- Toolbar --- */
     md-toolbar, md-toolbar.md-default-theme, md-toolbar.md-hue-2 {
-      background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
       color: #fff !important;
-      box-shadow: 0 2px 12px rgba(99,102,241,0.2) !important;
+      box-shadow: 0 2px 12px rgba(37,99,235,0.2) !important;
       z-index: 100 !important;
       transition: box-shadow 0.3s ease !important;
     }
@@ -116,10 +116,10 @@
     md-sidenav md-list-item.selected .md-button,
     md-sidenav md-list-item .md-button.selected,
     md-sidenav md-list-item .md-button.md-focused {
-      background: linear-gradient(135deg, #6366f1, #4f46e5) !important;
+      background: linear-gradient(135deg, #2563eb, #1d4ed8) !important;
       color: #fff !important;
       font-weight: 500 !important;
-      box-shadow: 0 2px 8px rgba(99,102,241,0.3) !important;
+      box-shadow: 0 2px 8px rgba(37,99,235,0.3) !important;
     }
     md-sidenav md-list-item .badge,
     md-sidenav md-list-item .badgeContainer {
@@ -219,17 +219,17 @@
 
     /* --- Buttons --- */
     .md-button.md-primary, md-button.md-primary {
-      background: linear-gradient(135deg, #6366f1, #4f46e5) !important;
+      background: linear-gradient(135deg, #2563eb, #1d4ed8) !important;
       color: #fff !important;
       border-radius: var(--mc-radius) !important;
       font-size: 13px !important;
       padding: 6px 16px !important;
-      box-shadow: 0 2px 8px rgba(99,102,241,0.25) !important;
+      box-shadow: 0 2px 8px rgba(37,99,235,0.25) !important;
       transition: all var(--mc-transition) !important;
     }
     .md-button.md-primary:hover, md-button.md-primary:hover {
-      background: linear-gradient(135deg, #4f46e5, #4338ca) !important;
-      box-shadow: 0 4px 12px rgba(99,102,241,0.35) !important;
+      background: linear-gradient(135deg, #1d4ed8, #1e40af) !important;
+      box-shadow: 0 4px 12px rgba(37,99,235,0.35) !important;
       transform: translateY(-1px) !important;
     }
     .md-button.md-raised, md-button.md-raised {
@@ -246,15 +246,15 @@
       transition: all var(--mc-transition) !important;
     }
     .md-button:not(.md-raised):not(.md-primary):hover {
-      background: rgba(99,102,241,0.08) !important;
+      background: rgba(37,99,235,0.08) !important;
     }
     .md-button.md-fab, md-fab-trigger .md-button {
-      background: linear-gradient(135deg, #6366f1, #4f46e5) !important;
-      box-shadow: 0 4px 16px rgba(99,102,241,0.4) !important;
+      background: linear-gradient(135deg, #2563eb, #1d4ed8) !important;
+      box-shadow: 0 4px 16px rgba(37,99,235,0.4) !important;
       transition: all var(--mc-transition) !important;
     }
     .md-button.md-fab:hover, md-fab-trigger .md-button:hover {
-      box-shadow: 0 6px 20px rgba(99,102,241,0.5) !important;
+      box-shadow: 0 6px 20px rgba(37,99,235,0.5) !important;
       transform: translateY(-2px) !important;
     }
 
@@ -274,7 +274,7 @@
     md-input-container input:focus, md-input-container textarea:focus,
     md-input-container .md-input:focus {
       border-color: var(--mc-primary) !important;
-      box-shadow: 0 0 0 3px rgba(99,102,241,0.1) !important;
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.1) !important;
     }
 
     /* --- Tabs --- */
@@ -299,7 +299,7 @@
       border-color: var(--mc-primary) !important;
     }
     md-switch.md-checked .md-thumb { background: var(--mc-primary) !important; }
-    md-switch.md-checked .md-bar { background: rgba(99,102,241,0.4) !important; }
+    md-switch.md-checked .md-bar { background: rgba(37,99,235,0.4) !important; }
 
     /* --- Cards, Dialogs --- */
     md-card {
@@ -378,15 +378,15 @@
     #ai-assistant-btn {
       position: fixed; bottom: 24px; right: 24px; z-index: 9999;
       width: 56px; height: 56px; border-radius: 50%;
-      background: linear-gradient(135deg, #6366f1, #4f46e5);
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
       color: #fff; border: none; cursor: pointer;
-      box-shadow: 0 4px 16px rgba(99,102,241,0.4);
+      box-shadow: 0 4px 16px rgba(37,99,235,0.4);
       display: flex; align-items: center; justify-content: center;
       font-size: 24px; transition: all 0.25s ease;
     }
     #ai-assistant-btn:hover {
       transform: scale(1.1) translateY(-2px);
-      box-shadow: 0 8px 24px rgba(99,102,241,0.5);
+      box-shadow: 0 8px 24px rgba(37,99,235,0.5);
     }
     #ai-panel {
       position: fixed; bottom: 90px; right: 24px; z-index: 9998;
@@ -404,7 +404,7 @@
     }
     #ai-panel.open { display: flex; }
     #ai-panel-header {
-      background: linear-gradient(135deg, #6366f1, #4f46e5);
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
       color: #fff; padding: 18px 22px;
       display: flex; align-items: center; justify-content: space-between;
     }
@@ -425,7 +425,7 @@
       background: #f8fafc; color: #475569; font-size: 12px; cursor: pointer;
       transition: all 0.2s; font-weight: 500;
     }
-    #ai-panel-actions button:hover { background: #eef2ff; border-color: #6366f1; color: #6366f1; }
+    #ai-panel-actions button:hover { background: #eef2ff; border-color: #2563eb; color: #2563eb; }
     #ai-messages {
       flex: 1; overflow-y: auto; padding: 18px;
       display: flex; flex-direction: column; gap: 12px;
@@ -441,7 +441,7 @@
     }
     .ai-msg.user {
       align-self: flex-end;
-      background: linear-gradient(135deg, #6366f1, #4f46e5); color: #fff;
+      background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #fff;
       border-bottom-right-radius: 4px;
     }
     .ai-msg.assistant {
@@ -477,15 +477,15 @@
       font-family: inherit; line-height: 1.4;
       transition: all 0.2s;
     }
-    #ai-input:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
+    #ai-input:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
     #ai-send {
       width: 40px; height: 40px; border-radius: 50%;
-      background: linear-gradient(135deg, #6366f1, #4f46e5); color: #fff; border: none;
+      background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #fff; border: none;
       cursor: pointer; display: flex; align-items: center;
       justify-content: center; font-size: 18px;
       transition: all 0.25s; flex-shrink: 0;
     }
-    #ai-send:hover { background: linear-gradient(135deg, #4f46e5, #4338ca); transform: scale(1.05); }
+    #ai-send:hover { background: linear-gradient(135deg, #1d4ed8, #1e40af); transform: scale(1.05); }
     #ai-send:disabled { background: #cbd5e1; cursor: not-allowed; transform: none; }
     .ai-msg pre {
       background: #f1f5f9; padding: 10px; border-radius: 8px;
