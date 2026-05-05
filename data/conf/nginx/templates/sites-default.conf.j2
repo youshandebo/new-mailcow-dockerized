@@ -253,6 +253,7 @@ location ^~ /SOGo {
     proxy_read_timeout 3600;
     client_body_buffer_size 128k;
     client_max_body_size 0;
+    proxy_set_header Accept-Encoding "";
     sub_filter '</body>' '<script src="/SOGo.woa/WebServerResources/js/custom-sogo.js"></script></body>';
     sub_filter_types text/html;
     sub_filter_once on;
