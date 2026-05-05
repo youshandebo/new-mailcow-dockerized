@@ -66,15 +66,7 @@
 
     /* Hide default brand */
     md-toolbar .md-toolbar-tools > a:first-child {
-      font-size: 0 !important;
-      width: 0 !important;
-      max-width: 0 !important;
-      overflow: hidden !important;
-      margin: 0 !important;
-      padding: 0 !important;
-      opacity: 0 !important;
-      pointer-events: none !important;
-      position: absolute !important;
+      display: none !important;
     }
 
     /* Injected brand */
