@@ -13,7 +13,8 @@ if (!isset($_SESSION['mailcow_cc_username']) || $_SESSION['mailcow_cc_role'] !==
     exit;
 }
 
-$settings_json = $redis->get('mailcow:ai:settings');
+// Fixed: use same Redis key as ai-settings.php and ai-proxy.php
+$settings_json = $redis->get('ai:settings');
 if (!$settings_json) {
     echo json_encode(['success' => false, 'error' => 'AI settings not configured']);
     exit;
@@ -21,7 +22,7 @@ if (!$settings_json) {
 
 $settings = json_decode($settings_json, true);
 $provider = $settings['provider'] ?? 'openai';
-$apiUrl = $settings['apiUrl'] ?? '';
+$apiUrl = $settings['baseUrl'] ?? $settings['apiUrl'] ?? '';
 $apiKey = $settings['apiKey'] ?? '';
 $model = $settings['model'] ?? 'gpt-4o';
 
@@ -52,7 +53,8 @@ if ($provider === 'openai') {
     ]);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_TIMEOUT, 15);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
 
     $response = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -64,7 +66,7 @@ if ($provider === 'openai') {
     } elseif ($httpCode >= 200 && $httpCode < 300) {
         echo json_encode(['success' => true, 'message' => 'Connected successfully (HTTP ' . $httpCode . ')']);
     } else {
-        echo json_encode(['success' => false, 'error' => 'HTTP ' . $httpCode . ': ' . substr($response, 0, 200)]);
+        echo json_encode(['success' => false, 'error' => 'HTTP ' . $httpCode]);
     }
 } elseif ($provider === 'claude') {
     $url = 'https://api.anthropic.com/v1/messages';
@@ -84,6 +86,8 @@ if ($provider === 'openai') {
     ]);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
 
     $response = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -95,6 +99,6 @@ if ($provider === 'openai') {
     } elseif ($httpCode >= 200 && $httpCode < 300) {
         echo json_encode(['success' => true, 'message' => 'Connected successfully (HTTP ' . $httpCode . ')']);
     } else {
-        echo json_encode(['success' => false, 'error' => 'HTTP ' . $httpCode . ': ' . substr($response, 0, 200)]);
+        echo json_encode(['success' => false, 'error' => 'HTTP ' . $httpCode]);
     }
 }

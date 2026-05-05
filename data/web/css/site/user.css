@@ -1,86 +1,60 @@
-/* QQ Mail Style User Settings */
-.pagination a {
-  text-decoration: none !important;
-}
-.panel.panel-default {
-  overflow: visible !important;
-}
-.table-responsive {
-  overflow: visible !important;
-}
+/* Modern User Settings */
+.pagination a { text-decoration: none !important; }
+.panel.panel-default { overflow: visible !important; }
+.table-responsive { overflow: visible !important; }
 @media screen and (max-width: 767px) {
-  .table-responsive {
-    overflow-x: scroll !important;
-  }
+  .table-responsive { overflow-x: scroll !important; }
 }
 .footer-add-item {
-  display:block;
+  display: block;
   text-align: center;
   font-style: italic;
-  padding: 10px;
-  background: #fafbfc;
-  border-radius: 6px;
-  color: #8c8c8c;
+  padding: 12px;
+  background: #f8fafc;
+  border-radius: 10px;
+  color: #94a3b8;
 }
-.mass-actions-user {
-  user-select: none;
-}
-.inputMissingAttr {
-  border-color: #FF4136;
-}
+.mass-actions-user { user-select: none; }
+.inputMissingAttr { border-color: #ef4444; }
 #logText {
   white-space: pre-wrap;
   white-space: -moz-pre-wrap;
   white-space: -o-pre-wrap;
   word-wrap: break-word;
 }
-body {
-  overflow-y:scroll;
-}
-
+body { overflow-y: scroll; }
 table tbody tr {
   cursor: pointer;
+  transition: all 0.15s ease;
 }
-
-table tbody tr td input[type="checkbox"] {
-  cursor: pointer;
-}
+table tbody tr td input[type="checkbox"] { cursor: pointer; }
 .label-keys {
-  font-size:100%;
+  font-size: 100%;
   margin: 0px !important;
   white-space: normal !important;
 }
-.key-action {
-  font-weight:bold;
-  color:white !important;
-}
-svg {
-  display: inline-block;
-  vertical-align: middle;
-}
+.key-action { font-weight: bold; color: white !important; }
+svg { display: inline-block; vertical-align: middle; }
+
 .c-1-color, .label-ham {
-  background: #28b62c;
-  background: -webkit-linear-gradient(to right, #28b62c, #fff233);
-  background: linear-gradient(to right, #28b62c, #fff233);
+  background: #22c55e;
+  background: linear-gradient(to right, #22c55e, #fbbf24);
   color: #000;
 }
 .c-2-color, .label-spam {
-  background: #fff233;
-  background: -webkit-linear-gradient(to right, #fff233, #ff4136);
-  background: linear-gradient(to right, #fff233, #ff4136);
+  background: #fbbf24;
+  background: linear-gradient(to right, #fbbf24, #ef4444);
   color: #000;
 }
-.c-3-color, .label-reject{
-  background: #ff4136;
+.c-3-color, .label-reject {
+  background: #ef4444;
   color: #fff;
 }
-#spam_score {
-  margin-bottom: 10px;
-}
+#spam_score { margin-bottom: 10px; }
 .noUi-handle {
-  border: 1px solid #e2e2e2;
-  border-radius: 4px;
-  background: #eee;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: #f1f5f9;
   cursor: default;
   box-shadow: none;
   border-top-width: 0px;
@@ -89,101 +63,94 @@ svg {
   border-left-width: 1px;
 }
 .noUi-handle:hover {
-  background-color: #eee;
-  border-color: #e2e2e2;
+  background-color: #e2e8f0;
+  border-color: #cbd5e1;
   margin-top: 1px;
   border-bottom-width: 3px;
 }
 .noUi-handle::after, .noUi-handle::before {
-  background: #c6c6c6;
+  background: #94a3b8;
   width: 2px;
 }
 .noUi-target {
   background: transparent;
-  border-radius: 4px;
-  border: 1px solid #D3D3D3;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
   box-shadow: none;
 }
-.noUi-connects {
-  border-radius: 4px;
-}
-.label-ham,
-.label-spam,
-.label-reject {
+.noUi-connects { border-radius: 6px; }
+.label-ham, .label-spam, .label-reject {
   padding: .1em .5em .1em;
   font-size: inherit;
   font-weight: 400;
+  border-radius: 4px;
 }
 .clear-last-logins {
   cursor: pointer;
-  font-size:90%;
+  font-size: 90%;
   font-style: italic;
-  color: #4A90D9;
-  user-select:none;
+  color: #6366f1;
+  user-select: none;
 }
-.ip-location-flag {
-  border-radius: 4px;
-  top: 3px;
-}
-.recent-login-success {
-  margin-top:2px;
-  margin-right:10px;
-}
-.label-protocol-access {
-  line-height: 2;
-}
-.help-block-mt-0 {
-  margin-top: 0px;
-}
+.ip-location-flag { border-radius: 4px; top: 3px; }
+.recent-login-success { margin-top: 2px; margin-right: 10px; }
+.label-protocol-access { line-height: 2; }
+.help-block-mt-0 { margin-top: 0px; }
 
-/* QQ Mail style user settings cards */
+/* Cards */
 .card {
-  border: 1px solid #e8e8e8;
-  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.04);
   margin-bottom: 16px;
+  transition: all 0.25s ease;
+}
+.card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
 }
 .card-header {
-  background: #fafbfc;
-  border-bottom: 1px solid #e8e8e8;
-  padding: 12px 20px;
-  font-weight: 500;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 14px 20px;
+  font-weight: 600;
+  color: #1e293b;
+  border-radius: 12px 12px 0 0;
 }
-.card-body {
-  padding: 20px;
-}
+.card-body { padding: 20px; }
 
-/* QQ Mail style tabs */
+/* Tabs */
 .nav-tabs {
-  border-bottom: 2px solid #e8e8e8;
+  border-bottom: 2px solid #e2e8f0;
 }
 .nav-tabs .nav-link {
   border: none;
   padding: 10px 16px;
-  color: #595959;
+  color: #64748b;
   font-size: 14px;
   font-weight: 500;
   border-bottom: 2px solid transparent;
   margin-bottom: -2px;
-  transition: color 0.2s, border-color 0.2s;
+  transition: all 0.25s ease;
 }
 .nav-tabs .nav-link:hover {
-  color: #4A90D9;
+  color: #6366f1;
   border-bottom-color: transparent;
 }
 .nav-tabs .nav-link.active {
-  color: #4A90D9;
+  color: #6366f1;
   background: none;
-  border-bottom: 2px solid #4A90D9;
+  border-bottom: 2px solid #6366f1;
+  font-weight: 600;
 }
 
-/* QQ Mail style form controls */
+/* Form controls */
 .form-control {
-  border-radius: 6px;
-  border-color: #d9d9d9;
+  border-radius: 8px;
+  border-color: #e2e8f0;
   font-size: 14px;
+  transition: all 0.2s ease;
 }
 .form-control:focus {
-  border-color: #4A90D9;
-  box-shadow: 0 0 0 2px rgba(74,144,217,0.15);
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
 }

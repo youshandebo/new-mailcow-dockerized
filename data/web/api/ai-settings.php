@@ -1,7 +1,7 @@
 <?php
 /**
  * AI Settings API for mailcow admin panel.
- * Reads/writes AI configuration to Redis (same key as webmail backend).
+ * Reads/writes AI configuration to Redis.
  */
 require_once $_SERVER['DOCUMENT_ROOT'] . '/inc/prerequisites.inc.php';
 
@@ -13,24 +13,23 @@ if (!isset($_SESSION['mailcow_cc_username']) || $_SESSION['mailcow_cc_role'] !==
     exit;
 }
 
-// Same key as claudeService.ts
 $redis_key = 'ai:settings';
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $settings = $redis->get($redis_key);
     if ($settings) {
         $data = json_decode($settings, true);
-        // Don't expose full API key
+        // Mask API key - never expose full key
         if (!empty($data['apiKey'])) {
             $key = $data['apiKey'];
             $data['apiKeyPreview'] = substr($key, 0, 8) . '...' . substr($key, -4);
+            unset($data['apiKey']);
         }
         echo json_encode($data);
     } else {
         echo json_encode([
             'provider' => 'openai',
             'baseUrl' => '',
-            'apiKey' => '',
             'model' => 'gpt-4o',
             'maxTokensCompose' => 2048,
             'maxTokensChat' => 2048,

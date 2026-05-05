@@ -1,8 +1,8 @@
 <?php
 /**
  * AI Proxy endpoint for SOGo AI Assistant.
- * Replaces the Node.js webmail-backend AI proxy.
  * Supports OpenAI-compatible and Claude APIs with SSE streaming.
+ * Requires authenticated session.
  */
 require_once $_SERVER['DOCUMENT_ROOT'] . '/inc/prerequisites.inc.php';
 
@@ -11,11 +11,10 @@ header('Cache-Control: no-cache');
 header('Connection: keep-alive');
 header('X-Accel-Buffering: no');
 
-// Auth check - same key as SOGo custom-sogo.js
-$ai_key = $_SERVER['HTTP_X_AI_KEY'] ?? '';
-if ($ai_key !== 'mailcow-ai-2024') {
+// Session authentication - require logged-in user
+if (!isset($_SESSION['mailcow_cc_username'])) {
     http_response_code(401);
-    echo "data: " . json_encode(['error' => 'Invalid AI proxy key']) . "\n\n";
+    echo "data: " . json_encode(['error' => 'Authentication required']) . "\n\n";
     echo "data: [DONE]\n\n";
     exit;
 }
@@ -60,8 +59,27 @@ if (!$input || !isset($input['messages'])) {
 
 $messages = $input['messages'];
 
-// Default system prompt
-$systemPrompt = 'You are a helpful email assistant embedded in a webmail client. You can help users understand emails, draft responses, translate content, and answer questions about their email. Be concise and helpful. If the user references an email, the content will be provided in the context.';
+// Validate messages array
+if (!is_array($messages) || count($messages) > 50) {
+    echo "data: " . json_encode(['error' => 'Too many messages (max 50)']) . "\n\n";
+    echo "data: [DONE]\n\n";
+    exit;
+}
+
+foreach ($messages as $msg) {
+    if (!isset($msg['role'], $msg['content'])) {
+        echo "data: " . json_encode(['error' => 'Invalid message format']) . "\n\n";
+        echo "data: [DONE]\n\n";
+        exit;
+    }
+    if (strlen($msg['content']) > 50000) {
+        echo "data: " . json_encode(['error' => 'Message too long (max 50000 chars)']) . "\n\n";
+        echo "data: [DONE]\n\n";
+        exit;
+    }
+}
+
+$systemPrompt = 'You are a helpful email assistant embedded in a webmail client. You can help users understand emails, draft responses, translate content, and answer questions about their email. Be concise and helpful.';
 
 // Send initial SSE padding (2048 bytes for nginx buffering)
 echo str_repeat(' ', 2048) . "\n";
@@ -77,8 +95,23 @@ if ($provider === 'openai') {
     echo "data: [DONE]\n\n";
 }
 
+function isPrivateIP($url) {
+    $host = parse_url($url, PHP_URL_HOST);
+    if (!$host) return false;
+    $ip = gethostbyname($host);
+    if ($ip === $host) return false; // DNS resolution failed
+    return !filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE);
+}
+
 function streamOpenAI($apiKey, $baseUrl, $model, $messages, $systemPrompt, $maxTokens, $temperature) {
     $url = rtrim($baseUrl, '/') . '/chat/completions';
+
+    // SSRF protection
+    if (isPrivateIP($url)) {
+        echo "data: " . json_encode(['error' => 'Invalid API URL']) . "\n\n";
+        echo "data: [DONE]\n\n";
+        return;
+    }
 
     $apiMessages = [['role' => 'system', 'content' => $systemPrompt]];
     foreach ($messages as $msg) {
@@ -88,8 +121,8 @@ function streamOpenAI($apiKey, $baseUrl, $model, $messages, $systemPrompt, $maxT
     $payload = json_encode([
         'model' => $model,
         'messages' => $apiMessages,
-        'max_tokens' => $maxTokens,
-        'temperature' => $temperature,
+        'max_tokens' => min($maxTokens, 4096),
+        'temperature' => max(0, min(2, $temperature)),
         'stream' => true,
     ]);
 
@@ -102,7 +135,8 @@ function streamOpenAI($apiKey, $baseUrl, $model, $messages, $systemPrompt, $maxT
     ]);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, false);
     curl_setopt($ch, CURLOPT_TIMEOUT, 120);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
 
     $buffer = '';
     curl_setopt($ch, CURLOPT_WRITEFUNCTION, function($ch, $chunk) use (&$buffer) {
@@ -140,7 +174,7 @@ function streamOpenAI($apiKey, $baseUrl, $model, $messages, $systemPrompt, $maxT
     curl_close($ch);
 
     if ($error) {
-        echo "data: " . json_encode(['error' => 'Connection error: ' . $error]) . "\n\n";
+        echo "data: " . json_encode(['error' => 'Connection error']) . "\n\n";
         echo "data: [DONE]\n\n";
         ob_flush();
         flush();
@@ -157,7 +191,7 @@ function streamClaude($apiKey, $model, $messages, $systemPrompt, $maxTokens, $te
 
     $payload = json_encode([
         'model' => $model,
-        'max_tokens' => $maxTokens,
+        'max_tokens' => min($maxTokens, 4096),
         'system' => $systemPrompt,
         'messages' => $apiMessages,
         'stream' => true,
@@ -173,6 +207,8 @@ function streamClaude($apiKey, $model, $messages, $systemPrompt, $maxTokens, $te
     ]);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, false);
     curl_setopt($ch, CURLOPT_TIMEOUT, 120);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
 
     $buffer = '';
     curl_setopt($ch, CURLOPT_WRITEFUNCTION, function($ch, $chunk) use (&$buffer) {
@@ -189,8 +225,7 @@ function streamClaude($apiKey, $model, $messages, $systemPrompt, $maxTokens, $te
             $parsed = json_decode($data, true);
             if (!$parsed) continue;
 
-            if ($parsed['type'] === 'content_block_delta' &&
-                isset($parsed['delta']['text'])) {
+            if ($parsed['type'] === 'content_block_delta' && isset($parsed['delta']['text'])) {
                 echo "data: " . json_encode(['text' => $parsed['delta']['text']]) . "\n\n";
                 ob_flush();
                 flush();
@@ -209,7 +244,7 @@ function streamClaude($apiKey, $model, $messages, $systemPrompt, $maxTokens, $te
     curl_close($ch);
 
     if ($error) {
-        echo "data: " . json_encode(['error' => 'Connection error: ' . $error]) . "\n\n";
+        echo "data: " . json_encode(['error' => 'Connection error']) . "\n\n";
         echo "data: [DONE]\n\n";
         ob_flush();
         flush();
