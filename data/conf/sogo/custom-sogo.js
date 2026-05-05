@@ -770,6 +770,80 @@
   }
 })();
 
+// Fix folder switching race condition
+(function() {
+  'use strict';
+
+  var clickSeq = 0;
+
+  function setupFolderFix() {
+    var injector = angular.element(document.body).injector();
+    var http = injector.get('$http');
+    var rootScope = injector.get('$rootScope');
+
+    // Override $http to add cancel tokens for mail requests
+    var origHttp = http;
+    var activeCancels = {};
+
+    rootScope.$on('$routeChangeStart', function(event, next) {
+      clickSeq++;
+      var seq = clickSeq;
+
+      // After a short delay, check if this route change was superseded
+      setTimeout(function() {
+        if (seq !== clickSeq) {
+          // A newer click happened - abort any pending mail HTTP requests
+          http.pendingRequests.forEach(function(req) {
+            if (req.url && req.url.indexOf('/Mail/') !== -1) {
+              try {
+                if (req.timeout && typeof req.timeout.resolve === 'function') {
+                  req.timeout.resolve();
+                }
+              } catch(e) {}
+            }
+          });
+        }
+      }, 50);
+    });
+
+    // Debounce sidebar folder clicks - ignore clicks within 200ms of each other
+    var lastFolderClick = 0;
+    document.addEventListener('click', function(e) {
+      var folderItem = e.target.closest('md-sidenav md-list-item');
+      if (!folderItem) return;
+
+      var now = Date.now();
+      if (now - lastFolderClick < 200) {
+        e.stopPropagation();
+        e.preventDefault();
+        console.log('[Folder Fix] Debounced rapid folder click');
+        return;
+      }
+      lastFolderClick = now;
+    }, true);
+
+    console.log('[Folder Fix] Installed');
+  }
+
+  function init() {
+    try {
+      if (typeof angular !== 'undefined' && angular.element(document.body).injector()) {
+        setupFolderFix();
+      } else {
+        setTimeout(init, 500);
+      }
+    } catch(e) {
+      setTimeout(init, 500);
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() { setTimeout(init, 1000); });
+  } else {
+    setTimeout(init, 1000);
+  }
+})();
+
 // Login redirect
 document.addEventListener('DOMContentLoaded', function() {
   var loginForm = document.forms.namedItem('loginForm');
