@@ -770,7 +770,9 @@
   }
 })();
 
-// Fix folder switching: use mousedown instead of click to handle same-position clicks
+// Fix folder switching race condition
+// Problem 1: Browser suppresses 'click' at same screen coordinates
+// Problem 2: Previous folder's HTTP response overwrites new folder's data
 (function() {
   'use strict';
 
@@ -778,50 +780,81 @@
     var injector = angular.element(document.body).injector();
     var rootScope = injector.get('$rootScope');
     var http = injector.get('$http');
+    var state = injector.get('$state');
 
-    // Cancel pending HTTP requests on state change
-    rootScope.$on('$stateChangeStart', function(event, toState) {
-      if (toState.name && toState.name.indexOf('mail.account.mailbox') === 0) {
-        http.pendingRequests.forEach(function(req) {
-          if (req.timeout && typeof req.timeout.resolve === 'function') {
+    // Patch $state.go to cancel pending HTTP before any mailbox state transition
+    var originalGo = state.go.bind(state);
+    state.go = function(toState, toParams, options) {
+      if (toState && toState.indexOf('mail.account.mailbox') === 0) {
+        cancelPendingRequests();
+      }
+      return originalGo(toState, toParams, options);
+    };
+
+    function cancelPendingRequests() {
+      try {
+        var pending = http.pendingRequests;
+        for (var i = 0; i < pending.length; i++) {
+          var req = pending[i];
+          if (req && req.timeout && typeof req.timeout.resolve === 'function') {
             req.timeout.resolve();
           }
-        });
+        }
+      } catch(e) {}
+    }
+
+    // Also cancel on state change as backup
+    rootScope.$on('$stateChangeStart', function(event, toState) {
+      if (toState.name && toState.name.indexOf('mail.account.mailbox') === 0) {
+        cancelPendingRequests();
       }
     });
 
-    // Use mousedown to handle same-position clicks that the browser drops
-    // The browser suppresses 'click' events at the same coordinates,
-    // but 'mousedown' fires on every button press
+    // Mousedown handler: browser drops 'click' events at same coordinates,
+    // but 'mousedown' fires on every press. This fixes rapid same-position clicks.
     document.addEventListener('mousedown', function(e) {
-      if (e.button !== 0) return; // only left click
+      if (e.button !== 0) return;
 
-      var item = e.target.closest('md-sidenav md-list-item');
+      // Walk up from target to find a folder list item
+      var el = e.target;
+      var item = null;
+      while (el && el !== document.body) {
+        if (el.classList && el.classList.contains('sg-mailbox-list-item')) {
+          item = el;
+          break;
+        }
+        // Also check for md-list-item inside sidenav
+        if (el.tagName === 'MD-LIST-ITEM' && el.closest && el.closest('md-sidenav')) {
+          item = el;
+          break;
+        }
+        el = el.parentElement;
+      }
       if (!item) return;
 
-      // Check if this is a different folder than the currently active one
-      var isActive = item.classList.contains('md-bg') ||
-                     item.querySelector('.md-bg');
-      if (isActive) return; // already selected, let normal handler work
-
-      // Find the clickable element (the <p class="sg-item-name"> tag)
-      var clickTarget = item.querySelector('p.sg-item-name') ||
-                        item.querySelector('p[ng-click]') ||
-                        item.querySelector('p');
+      // Find the <p class="sg-item-name"> with ng-click
+      var clickTarget = item.querySelector('p.sg-item-name[ng-click]') ||
+                        item.querySelector('p.sg-item-name') ||
+                        item.querySelector('p[ng-click]');
       if (!clickTarget) return;
 
-      // Trigger AngularJS click handler via scope
+      // Check if already selected (has md-bg class on the list item)
+      if (item.classList.contains('md-bg')) return;
+
       try {
         var scope = angular.element(clickTarget).scope();
-        if (scope && scope.$ctrl && scope.$ctrl.selectFolder) {
+        if (scope && scope.$ctrl && typeof scope.$ctrl.selectFolder === 'function') {
           scope.$ctrl.selectFolder(e);
           e.preventDefault();
           e.stopPropagation();
+          console.log('[Folder Fix] Switched to folder via mousedown');
         }
-      } catch(err) {}
+      } catch(err) {
+        console.log('[Folder Fix] Error:', err.message);
+      }
     }, true);
 
-    console.log('[Folder Fix] Installed - mousedown handler');
+    console.log('[Folder Fix] Installed');
   }
 
   function init() {
