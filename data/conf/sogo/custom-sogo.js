@@ -1,3 +1,4 @@
+console.log('[custom-sogo] Script loaded');
 // Modern SOGo Theme + AI Assistant
 (function() {
   'use strict';
@@ -771,109 +772,103 @@
 })();
 
 // Fix folder switching race condition
-// Problem 1: Browser suppresses 'click' at same screen coordinates
-// Problem 2: Previous folder's HTTP response overwrites new folder's data
+console.log('[Folder Fix] Script section reached');
 (function() {
   'use strict';
+  var installed = false;
 
   function setupFolderFix() {
-    var injector = angular.element(document.body).injector();
-    var rootScope = injector.get('$rootScope');
-    var http = injector.get('$http');
-    var state = injector.get('$state');
+    if (installed) return;
+    try {
+      var injector = angular.element(document.body).injector();
+      if (!injector) { console.log('[Folder Fix] No injector'); return false; }
+      var rootScope = injector.get('$rootScope');
+      var http = injector.get('$http');
+      var state = injector.get('$state');
 
-    // Patch $state.go to cancel pending HTTP before any mailbox state transition
-    var originalGo = state.go.bind(state);
-    state.go = function(toState, toParams, options) {
-      if (toState && toState.indexOf('mail.account.mailbox') === 0) {
-        cancelPendingRequests();
-      }
-      return originalGo(toState, toParams, options);
-    };
+      // Patch $state.go to cancel pending HTTP before any mailbox state transition
+      var originalGo = state.go.bind(state);
+      state.go = function(toState, toParams, options) {
+        if (toState && toState.indexOf('mail.account.mailbox') === 0) {
+          cancelPendingRequests();
+        }
+        return originalGo(toState, toParams, options);
+      };
 
-    function cancelPendingRequests() {
-      try {
-        var pending = http.pendingRequests;
-        for (var i = 0; i < pending.length; i++) {
-          var req = pending[i];
-          if (req && req.timeout && typeof req.timeout.resolve === 'function') {
-            req.timeout.resolve();
+      function cancelPendingRequests() {
+        try {
+          var pending = http.pendingRequests;
+          for (var i = 0; i < pending.length; i++) {
+            var req = pending[i];
+            if (req && req.timeout && typeof req.timeout.resolve === 'function') {
+              req.timeout.resolve();
+            }
           }
+        } catch(e) {}
+      }
+
+      rootScope.$on('$stateChangeStart', function(event, toState) {
+        if (toState.name && toState.name.indexOf('mail.account.mailbox') === 0) {
+          cancelPendingRequests();
         }
-      } catch(e) {}
+      });
+
+      // Mousedown handler for same-position clicks
+      document.addEventListener('mousedown', function(e) {
+        if (e.button !== 0) return;
+        var el = e.target;
+        var item = null;
+        while (el && el !== document.body) {
+          if (el.classList && el.classList.contains('sg-mailbox-list-item')) {
+            item = el; break;
+          }
+          if (el.tagName === 'MD-LIST-ITEM' && el.closest && el.closest('md-sidenav')) {
+            item = el; break;
+          }
+          el = el.parentElement;
+        }
+        if (!item) return;
+        var clickTarget = item.querySelector('p.sg-item-name[ng-click]') ||
+                          item.querySelector('p.sg-item-name') ||
+                          item.querySelector('p[ng-click]');
+        if (!clickTarget) return;
+        if (item.classList.contains('md-bg')) return;
+        try {
+          var scope = angular.element(clickTarget).scope();
+          if (scope && scope.$ctrl && typeof scope.$ctrl.selectFolder === 'function') {
+            scope.$ctrl.selectFolder(e);
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('[Folder Fix] mousedown->selectFolder');
+          }
+        } catch(err) {}
+      }, true);
+
+      installed = true;
+      console.log('[Folder Fix] Installed OK');
+      return true;
+    } catch(err) {
+      console.log('[Folder Fix] Setup error:', err.message);
+      return false;
     }
-
-    // Also cancel on state change as backup
-    rootScope.$on('$stateChangeStart', function(event, toState) {
-      if (toState.name && toState.name.indexOf('mail.account.mailbox') === 0) {
-        cancelPendingRequests();
-      }
-    });
-
-    // Mousedown handler: browser drops 'click' events at same coordinates,
-    // but 'mousedown' fires on every press. This fixes rapid same-position clicks.
-    document.addEventListener('mousedown', function(e) {
-      if (e.button !== 0) return;
-
-      // Walk up from target to find a folder list item
-      var el = e.target;
-      var item = null;
-      while (el && el !== document.body) {
-        if (el.classList && el.classList.contains('sg-mailbox-list-item')) {
-          item = el;
-          break;
-        }
-        // Also check for md-list-item inside sidenav
-        if (el.tagName === 'MD-LIST-ITEM' && el.closest && el.closest('md-sidenav')) {
-          item = el;
-          break;
-        }
-        el = el.parentElement;
-      }
-      if (!item) return;
-
-      // Find the <p class="sg-item-name"> with ng-click
-      var clickTarget = item.querySelector('p.sg-item-name[ng-click]') ||
-                        item.querySelector('p.sg-item-name') ||
-                        item.querySelector('p[ng-click]');
-      if (!clickTarget) return;
-
-      // Check if already selected (has md-bg class on the list item)
-      if (item.classList.contains('md-bg')) return;
-
-      try {
-        var scope = angular.element(clickTarget).scope();
-        if (scope && scope.$ctrl && typeof scope.$ctrl.selectFolder === 'function') {
-          scope.$ctrl.selectFolder(e);
-          e.preventDefault();
-          e.stopPropagation();
-          console.log('[Folder Fix] Switched to folder via mousedown');
-        }
-      } catch(err) {
-        console.log('[Folder Fix] Error:', err.message);
-      }
-    }, true);
-
-    console.log('[Folder Fix] Installed');
   }
 
   function init() {
-    try {
-      if (typeof angular !== 'undefined' && angular.element(document.body).injector()) {
-        setupFolderFix();
-      } else {
-        setTimeout(init, 500);
-      }
-    } catch(err) {
-      setTimeout(init, 500);
+    if (installed) return;
+    if (typeof angular !== 'undefined') {
+      try {
+        var body = document.body;
+        if (body && angular.element(body).injector()) {
+          setupFolderFix();
+          return;
+        }
+      } catch(e) {}
     }
+    setTimeout(init, 500);
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function() { setTimeout(init, 1000); });
-  } else {
-    setTimeout(init, 1000);
-  }
+  // Start immediately
+  init();
 })();
 
 // Login redirect
