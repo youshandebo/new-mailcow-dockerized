@@ -49,7 +49,7 @@
     md-toolbar .md-toolbar-tools .md-button {
       color: rgba(255,255,255,0.9) !important;
       border-radius: var(--mc-radius) !important;
-      transition: all var(--mc-transition) !important;
+      transition: background-color 0.15s ease, color 0.15s ease !important;
     }
     md-toolbar a:hover, md-toolbar button:hover, md-toolbar .md-button:hover {
       color: #fff !important;
@@ -94,11 +94,8 @@
     md-sidenav md-list-item, md-sidenav md-list-item .md-button {
       color: var(--mc-text) !important;
       font-size: 13px !important;
-      min-height: 38px !important;
-      height: 38px !important;
-      line-height: 38px !important;
       border-radius: var(--mc-radius) !important;
-      transition: all var(--mc-transition) !important;
+      transition: background-color 0.15s ease, color 0.15s ease !important;
     }
     md-sidenav md-list-item:hover, md-sidenav md-list-item .md-button:hover {
       background: var(--mc-primary-light) !important;
@@ -161,8 +158,7 @@
     md-content md-list-item.md-no-proxy {
       border-bottom: 1px solid #f1f5f9 !important;
       padding: 12px 16px !important;
-      min-height: 64px !important;
-      transition: all var(--mc-transition) !important;
+      transition: background-color 0.15s ease, border-color 0.15s ease !important;
     }
     md-content md-list-item:hover {
       background: var(--mc-primary-light) !important;
@@ -217,25 +213,23 @@
       font-size: 13px !important;
       padding: 6px 16px !important;
       box-shadow: 0 2px 8px rgba(37,99,235,0.25) !important;
-      transition: all var(--mc-transition) !important;
+      transition: background-color 0.15s ease, box-shadow 0.15s ease, color 0.15s ease !important;
     }
     .md-button.md-primary:hover, md-button.md-primary:hover {
       background: linear-gradient(135deg, #1d4ed8, #1e40af) !important;
       box-shadow: 0 4px 12px rgba(37,99,235,0.35) !important;
-      transform: translateY(-1px) !important;
     }
     .md-button.md-raised, md-button.md-raised {
       border-radius: var(--mc-radius) !important;
       box-shadow: var(--mc-shadow) !important;
-      transition: all var(--mc-transition) !important;
+      transition: background-color 0.15s ease, box-shadow 0.15s ease, color 0.15s ease !important;
     }
     .md-button.md-raised:hover, md-button.md-raised:hover {
       box-shadow: var(--mc-shadow-md) !important;
-      transform: translateY(-1px) !important;
     }
     .md-button:not(.md-raised):not(.md-primary) {
       border-radius: var(--mc-radius) !important;
-      transition: all var(--mc-transition) !important;
+      transition: background-color 0.15s ease, color 0.15s ease !important;
     }
     .md-button:not(.md-raised):not(.md-primary):hover {
       background: rgba(37,99,235,0.08) !important;
@@ -243,11 +237,10 @@
     .md-button.md-fab, md-fab-trigger .md-button {
       background: linear-gradient(135deg, #2563eb, #1d4ed8) !important;
       box-shadow: 0 4px 16px rgba(37,99,235,0.4) !important;
-      transition: all var(--mc-transition) !important;
+      transition: background-color 0.15s ease, box-shadow 0.15s ease !important;
     }
     .md-button.md-fab:hover, md-fab-trigger .md-button:hover {
       box-shadow: 0 6px 20px rgba(37,99,235,0.5) !important;
-      transform: translateY(-2px) !important;
     }
 
     /* --- Links --- */
@@ -261,7 +254,7 @@
       border-radius: var(--mc-radius) !important;
       padding: 8px 12px !important;
       font-size: 14px !important;
-      transition: all var(--mc-transition) !important;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
     }
     md-input-container input:focus, md-input-container textarea:focus,
     md-input-container .md-input:focus {
@@ -273,7 +266,7 @@
     md-tabs md-tab-item, md-tab-item {
       color: var(--mc-text-secondary) !important;
       font-size: 14px !important;
-      transition: all var(--mc-transition) !important;
+      transition: color 0.15s ease !important;
     }
     md-tabs md-tab-item.md-active, md-tab-item.md-active {
       color: var(--mc-primary) !important;
@@ -298,7 +291,7 @@
       border-radius: var(--mc-radius-lg) !important;
       box-shadow: var(--mc-shadow) !important;
       border: 1px solid var(--mc-border) !important;
-      transition: all 0.25s ease !important;
+      transition: box-shadow 0.25s ease !important;
     }
     md-card:hover {
       box-shadow: var(--mc-shadow-md) !important;
@@ -337,7 +330,7 @@
       font-size: 13px !important;
       min-height: 36px !important;
       border-radius: 6px !important;
-      transition: all var(--mc-transition) !important;
+      transition: background-color 0.15s ease, color 0.15s ease !important;
     }
     md-option:hover, md-option:focus {
       background: var(--mc-primary-light) !important;
