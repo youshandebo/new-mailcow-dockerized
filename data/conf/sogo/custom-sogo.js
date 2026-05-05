@@ -1,6 +1,38 @@
 // QQ Mail Style CSS Injection for SOGo
 (function() {
-  console.log('[QQ Mail] CSS injection starting...');
+  'use strict';
+
+  // First: inject a VERY obvious test style to verify injection works
+  var testStyle = document.createElement('style');
+  testStyle.id = 'sogo-test-style';
+  testStyle.textContent = 'body { border: 5px solid red !important; } body::before { content: "CUSTOM JS LOADED"; display: block; background: red; color: white; padding: 10px; text-align: center; font-size: 20px; font-weight: bold; z-index: 99999; position: relative; }';
+  document.head.appendChild(testStyle);
+  console.log('[QQ Mail] Test style injected');
+
+  // Debug: log what elements exist
+  setTimeout(function() {
+    var toolbar = document.querySelector('.mc-toolbar') || document.querySelector('md-toolbar');
+    var sidenav = document.querySelector('md-sidenav');
+    var folderPanel = document.querySelector('.folder-panel') || document.querySelector('.mc-folder-panel');
+    console.log('[QQ Mail] DOM check - toolbar:', !!toolbar, 'sidenav:', !!sidenav, 'folderPanel:', !!folderPanel);
+    if (toolbar) console.log('[QQ Mail] toolbar classes:', toolbar.className);
+    if (sidenav) console.log('[QQ Mail] sidenav classes:', sidenav.className);
+
+    // Log all md- elements
+    var mdElements = document.querySelectorAll('[class*="md-"]');
+    console.log('[QQ Mail] Found', mdElements.length, 'md-* elements');
+
+    // Log all mc- elements
+    var mcElements = document.querySelectorAll('[class*="mc-"]');
+    console.log('[QQ Mail] Found', mcElements.length, 'mc-* elements');
+
+    // Log the main app container
+    var app = document.querySelector('.mc-app') || document.querySelector('[ng-app]') || document.querySelector('[data-ng-app]');
+    if (app) {
+      console.log('[QQ Mail] App container:', app.tagName, app.className);
+    }
+  }, 2000);
+
   var css = `
     /* ===== QQ Mail Theme for SOGo — Full Layout Overhaul ===== */
 
@@ -40,15 +72,12 @@
     .mc-toolbar md-icon, md-toolbar md-icon {
       color: rgba(255,255,255,0.9) !important;
     }
-    /* Toolbar buttons spacing */
     .mc-toolbar .md-toolbar-tools .md-button,
     md-toolbar .md-toolbar-tools .md-button {
       margin: 0 2px !important;
       padding: 6px 12px !important;
       font-size: 13px !important;
     }
-    /* Brand text in toolbar */
-    /* Hide ALL default brand elements in toolbar to avoid overlap */
     .mc-toolbar .mc-toolbar-brand,
     .mc-toolbar [href="/SOGo/"],
     md-toolbar .md-toolbar-tools > a:first-child,
@@ -64,12 +93,10 @@
       pointer-events: none !important;
       position: absolute !important;
     }
-    /* Hide any dropdown arrows / carets near brand */
     .mc-toolbar .mc-toolbar-brand + *,
     .mc-toolbar [href="/SOGo/"] + * {
       margin-left: 0 !important;
     }
-    /* Injected brand style — clean QQ Mail look */
     .mc-toolbar .mc-qq-brand {
       font-size: 18px !important;
       font-weight: 700 !important;
@@ -88,7 +115,7 @@
       font-size: 20px !important;
     }
 
-    /* --- Sidebar / Folder Panel: QQ Mail Style --- */
+    /* --- Sidebar / Folder Panel --- */
     .folder-panel, .mc-folder-panel,
     md-sidenav, md-sidenav.md-default-theme {
       background: #fff !important;
@@ -96,7 +123,6 @@
       width: 220px !important;
       min-width: 220px !important;
     }
-    /* Folder panel header */
     .folder-panel .panel-heading,
     .mc-folder-panel .panel-heading {
       background: #fafbfc !important;
@@ -106,7 +132,6 @@
       font-weight: 600 !important;
       color: #333 !important;
     }
-    /* Folder items — QQ Mail compact style */
     .folder-panel md-list-item,
     .mc-folder-panel md-list-item {
       min-height: 38px !important;
@@ -137,7 +162,6 @@
       font-weight: 500 !important;
       box-shadow: 0 2px 6px rgba(30,136,229,0.3) !important;
     }
-    /* Unread badge — QQ Mail red dot style */
     .folder-panel md-list-item .badge,
     .mc-folder-panel md-list-item .badge {
       background: #ff4444 !important;
@@ -149,7 +173,6 @@
       text-align: center !important;
       font-weight: 600 !important;
     }
-    /* Folder icons */
     .folder-panel md-list-item .md-button md-icon,
     .mc-folder-panel md-list-item .md-button md-icon {
       font-size: 18px !important;
@@ -162,14 +185,13 @@
     .mc-folder-panel md-list-item.selected .md-button md-icon {
       color: #fff !important;
     }
-    /* Folder panel divider */
     .folder-panel md-divider,
     .mc-folder-panel md-divider {
       margin: 4px 12px !important;
       border-color: #f0f0f0 !important;
     }
 
-    /* --- Mail List: QQ Mail Two-Line Style --- */
+    /* --- Mail List --- */
     .mail-list, .mc-mail-list {
       background: #fff !important;
       border-radius: 0 !important;
@@ -193,7 +215,6 @@
       border-left: 3px solid #4A90D9 !important;
       padding-left: 13px !important;
     }
-    /* Unread mail — bold with blue indicator */
     .mail-list .unread md-list-item,
     .mc-mail-list .unread md-list-item,
     .mail-list md-list-item.unread,
@@ -211,21 +232,18 @@
       margin-right: 8px !important;
       flex-shrink: 0 !important;
     }
-    /* Sender name */
     .mail-list .from, .mc-mail-list .from,
     .mail-list .mc-mail-sender, .mc-mail-list .mc-mail-sender {
       color: #1a1a1a !important;
       font-size: 14px !important;
       font-weight: 500 !important;
     }
-    /* Subject */
     .mail-list .subject, .mc-mail-list .subject,
     .mail-list .mc-mail-subject, .mc-mail-list .mc-mail-subject {
       color: #333 !important;
       font-size: 13px !important;
       line-height: 1.4 !important;
     }
-    /* Preview / snippet */
     .mail-list .preview, .mc-mail-list .preview,
     .mail-list .mc-mail-preview, .mc-mail-list .mc-mail-preview {
       color: #999 !important;
@@ -235,49 +253,25 @@
       text-overflow: ellipsis !important;
       white-space: nowrap !important;
     }
-    /* Date — right aligned */
     .mail-list .date, .mc-mail-list .date,
     .mail-list .mc-mail-date, .mc-mail-list .mc-mail-date {
       color: #999 !important;
       font-size: 12px !important;
       float: right !important;
     }
-    /* Attachment icon */
-    .mail-list .attachment-icon, .mc-mail-list .attachment-icon,
-    .mail-list md-icon[md-font-icon="attachment"],
-    .mc-mail-list md-icon[md-font-icon="attachment"] {
-      color: #999 !important;
-      font-size: 16px !important;
-    }
-    /* Mail list toolbar (checkbox, select all, etc) */
-    .mail-list .list-toolbar, .mc-mail-list .list-toolbar,
-    .mc-mail-list-toolbar {
-      background: #fafbfc !important;
-      border-bottom: 1px solid #e8ecef !important;
-      padding: 8px 12px !important;
-    }
-    /* Mail list empty state */
-    .mail-list .empty-state, .mc-mail-list .empty-state {
-      text-align: center !important;
-      padding: 60px 20px !important;
-      color: #bbb !important;
-      font-size: 14px !important;
-    }
 
-    /* --- Email Detail / Content Panel --- */
+    /* --- Email Detail --- */
     .mail-content, .mc-mail-content, .mail-detail, .mc-mail-detail {
       background: #fff !important;
       border-radius: 0 !important;
       padding: 0 !important;
     }
-    /* Email header area */
     .mail-content .mc-mail-header,
     .mc-mail-content .mc-mail-header,
     .mail-detail .mail-header {
       padding: 20px 24px !important;
       border-bottom: 1px solid #f0f0f0 !important;
     }
-    /* Subject */
     .mail-content .subject, .mc-mail-content .subject,
     .mail-content .mc-mail-subject, .mc-mail-content .mc-mail-subject {
       color: #1a1a1a !important;
@@ -286,7 +280,6 @@
       line-height: 1.3 !important;
       margin-bottom: 12px !important;
     }
-    /* From / To info */
     .mail-content .from, .mc-mail-content .from,
     .mail-content .mc-mail-from, .mc-mail-content .mc-mail-from {
       color: #333 !important;
@@ -296,7 +289,6 @@
       color: #4A90D9 !important;
       text-decoration: none !important;
     }
-    /* Email body */
     .mail-content .body, .mc-mail-content .body,
     .mail-content .mc-mail-body, .mc-mail-content .mc-mail-body,
     .mail-body {
@@ -305,7 +297,6 @@
       line-height: 1.7 !important;
       color: #333 !important;
     }
-    /* Action bar above email */
     .mail-content .mc-mail-actions,
     .mc-mail-content .mc-mail-actions,
     .mail-detail .mail-actions {
@@ -320,7 +311,7 @@
       padding: 4px 12px !important;
     }
 
-    /* --- Buttons: QQ Mail Style --- */
+    /* --- Buttons --- */
     .md-button.md-primary, .md-button.md-default-theme.md-primary, md-button.md-primary {
       background: linear-gradient(135deg, #4A90D9, #357ABD) !important;
       color: #fff !important;
@@ -342,7 +333,6 @@
     .md-button.md-raised:hover, md-button.md-raised:hover {
       box-shadow: 0 2px 8px rgba(0,0,0,0.12) !important;
     }
-    /* Flat buttons */
     .md-button:not(.md-raised):not(.md-primary) {
       border-radius: 6px !important;
       transition: background 0.15s ease !important;
@@ -350,7 +340,6 @@
     .md-button:not(.md-raised):not(.md-primary):hover {
       background: rgba(30,136,229,0.08) !important;
     }
-    /* Compose button — prominent QQ Mail style */
     .md-button.md-fab, md-fab-trigger .md-button {
       background: linear-gradient(135deg, #4A90D9, #2B6CB0) !important;
       box-shadow: 0 4px 12px rgba(30,136,229,0.4) !important;
@@ -418,7 +407,7 @@
       border-color: #f0f0f0 !important;
     }
 
-    /* --- Scrollbar: Thin QQ Style --- */
+    /* --- Scrollbar --- */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: #d0d0d0; border-radius: 3px; }
@@ -441,11 +430,7 @@
     md-option:hover, md-option:focus {
       background: #e8f0fe !important;
     }
-    /* Table styles */
-    table {
-      border-collapse: separate !important;
-      border-spacing: 0 !important;
-    }
+    table { border-collapse: separate !important; border-spacing: 0 !important; }
     table th {
       background: #fafbfc !important;
       font-weight: 600 !important;
@@ -459,17 +444,13 @@
       padding: 10px 12px !important;
       font-size: 13px !important;
     }
-    table tr:hover td {
-      background: #f8fafc !important;
-    }
-    /* Tooltip */
+    table tr:hover td { background: #f8fafc !important; }
     md-tooltip {
       font-size: 12px !important;
       background: #333 !important;
       border-radius: 4px !important;
       padding: 4px 8px !important;
     }
-    /* Status bar at bottom */
     .mc-status-bar, .status-bar {
       background: #fafbfc !important;
       border-top: 1px solid #e8ecef !important;
@@ -477,7 +458,6 @@
       color: #999 !important;
       padding: 4px 16px !important;
     }
-    /* Compose window */
     .compose-window, .mc-compose {
       border-radius: 12px !important;
       box-shadow: 0 8px 32px rgba(0,0,0,0.18) !important;
@@ -563,9 +543,7 @@
       background: #f0f4f8; border-radius: 12px;
       font-size: 14px; color: #999;
     }
-    .ai-typing span {
-      animation: ai-dot 1.4s infinite;
-    }
+    .ai-typing span { animation: ai-dot 1.4s infinite; }
     .ai-typing span:nth-child(2) { animation-delay: 0.2s; }
     .ai-typing span:nth-child(3) { animation-delay: 0.4s; }
     @keyframes ai-dot {
@@ -614,7 +592,7 @@
   style.id = 'sogo-qq-mail-style';
   style.appendChild(document.createTextNode(css));
   document.head.appendChild(style);
-  console.log('[QQ Mail] CSS injected successfully, style id:', style.id);
+  console.log('[QQ Mail] QQ Mail CSS injected, style id:', style.id);
 })();
 
 // Inject QQ Mail style brand into toolbar
@@ -630,16 +608,11 @@
     toolbar.insertBefore(brand, toolbar.firstChild);
     return true;
   }
-  // Try immediately
   if (!injectBrand()) {
-    // Use MutationObserver to wait for Angular to render the toolbar
     var observer = new MutationObserver(function(mutations) {
-      if (injectBrand()) {
-        observer.disconnect();
-      }
+      if (injectBrand()) { observer.disconnect(); }
     });
     observer.observe(document.body, { childList: true, subtree: true });
-    // Fallback timeouts
     setTimeout(injectBrand, 1000);
     setTimeout(injectBrand, 3000);
     setTimeout(function() { observer.disconnect(); }, 10000);
@@ -656,7 +629,6 @@
   var isOpen = false;
 
   function createUI() {
-    // Floating button
     var btn = document.createElement('button');
     btn.id = 'ai-assistant-btn';
     btn.innerHTML = '&#x1F4AC;';
@@ -664,7 +636,6 @@
     btn.onclick = togglePanel;
     document.body.appendChild(btn);
 
-    // Panel
     var panel = document.createElement('div');
     panel.id = 'ai-panel';
     panel.innerHTML = `
@@ -687,7 +658,6 @@
     `;
     document.body.appendChild(panel);
 
-    // Auto-resize textarea
     var input = document.getElementById('ai-input');
     input.addEventListener('input', function() {
       this.style.height = 'auto';
@@ -723,7 +693,6 @@
   }
 
   function formatText(text) {
-    // Simple markdown-like formatting
     return text
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
@@ -747,11 +716,9 @@
   }
 
   function getCurrentEmail() {
-    // Try to extract current email content from SOGo DOM
     var subject = document.querySelector('.mail-content .subject, .mc-mail-content .subject');
     var body = document.querySelector('.mail-content .body, .mc-mail-content .body, .mail-body');
     var from = document.querySelector('.mail-content .from, .mc-mail-content .from');
-
     if (subject || body) {
       return {
         subject: subject ? subject.textContent.trim() : '',
@@ -765,29 +732,19 @@
   async function streamChat(messages, onChunk) {
     var response = await fetch(AI_BASE + '/chat', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-AI-Key': AI_KEY
-      },
+      headers: { 'Content-Type': 'application/json', 'X-AI-Key': AI_KEY },
       body: JSON.stringify({ messages: messages })
     });
-
-    if (!response.ok) {
-      throw new Error('AI request failed: ' + response.status);
-    }
-
+    if (!response.ok) throw new Error('AI request failed: ' + response.status);
     var reader = response.body.getReader();
     var decoder = new TextDecoder();
     var buffer = '';
-
     while (true) {
       var result = await reader.read();
       if (result.done) break;
-
       buffer += decoder.decode(result.value, { stream: true });
       var lines = buffer.split('\n');
       buffer = lines.pop();
-
       for (var line of lines) {
         if (line.startsWith('data: ')) {
           var data = line.slice(6).trim();
@@ -805,58 +762,42 @@
     }
   }
 
-  // Global functions
   window.aiSendMessage = async function() {
     var input = document.getElementById('ai-input');
     var text = input.value.trim();
     if (!text) return;
-
     input.value = '';
     input.style.height = 'auto';
     addMessage(text, 'user');
     chatHistory.push({ role: 'user', content: text });
-
     showTyping();
     document.getElementById('ai-send').disabled = true;
-
     try {
       var response = '';
       var msgDiv = null;
-
       await streamChat(chatHistory, function(chunk) {
-        if (!msgDiv) {
-          hideTyping();
-          msgDiv = addMessage('', 'assistant');
-        }
+        if (!msgDiv) { hideTyping(); msgDiv = addMessage('', 'assistant'); }
         response += chunk;
         msgDiv.innerHTML = formatText(response);
         document.getElementById('ai-messages').scrollTop = document.getElementById('ai-messages').scrollHeight;
       });
-
       chatHistory.push({ role: 'assistant', content: response });
     } catch (err) {
       hideTyping();
       addMessage('错误: ' + err.message, 'error');
     }
-
     document.getElementById('ai-send').disabled = false;
   };
 
   window.aiSummarize = async function() {
     var email = getCurrentEmail();
-    if (!email) {
-      addMessage('请先打开一封邮件，然后再点击"总结当前邮件"。', 'error');
-      return;
-    }
-
+    if (!email) { addMessage('请先打开一封邮件，然后再点击"总结当前邮件"。', 'error'); return; }
     addMessage('正在总结邮件...', 'user');
     showTyping();
     chatHistory.push({ role: 'user', content: '请总结这封邮件的要点' });
-
     try {
       var response = '';
       var msgDiv = null;
-
       await streamChat([
         { role: 'system', content: 'You are an email assistant. Summarize the following email concisely in Chinese. Reply in the same language as the email.' },
         { role: 'user', content: 'Subject: ' + email.subject + '\nFrom: ' + email.from + '\nBody:\n' + email.body }
@@ -866,29 +807,19 @@
         msgDiv.innerHTML = formatText(response);
         document.getElementById('ai-messages').scrollTop = document.getElementById('ai-messages').scrollHeight;
       });
-
       chatHistory.push({ role: 'assistant', content: response });
-    } catch (err) {
-      hideTyping();
-      addMessage('总结失败: ' + err.message, 'error');
-    }
+    } catch (err) { hideTyping(); addMessage('总结失败: ' + err.message, 'error'); }
   };
 
   window.aiReply = async function() {
     var email = getCurrentEmail();
-    if (!email) {
-      addMessage('请先打开一封邮件，然后再点击"帮我回复"。', 'error');
-      return;
-    }
-
+    if (!email) { addMessage('请先打开一封邮件，然后再点击"帮我回复"。', 'error'); return; }
     addMessage('正在生成回复...', 'user');
     showTyping();
     chatHistory.push({ role: 'user', content: '请帮我写一封回复邮件' });
-
     try {
       var response = '';
       var msgDiv = null;
-
       await streamChat([
         { role: 'system', content: 'You are an email assistant. Help the user write a reply to the following email. Be professional and concise. Reply in the same language as the original email.' },
         { role: 'user', content: 'Original email:\nSubject: ' + email.subject + '\nFrom: ' + email.from + '\nBody:\n' + email.body + '\n\nPlease draft a reply.' }
@@ -898,29 +829,19 @@
         msgDiv.innerHTML = formatText(response);
         document.getElementById('ai-messages').scrollTop = document.getElementById('ai-messages').scrollHeight;
       });
-
       chatHistory.push({ role: 'assistant', content: response });
-    } catch (err) {
-      hideTyping();
-      addMessage('生成回复失败: ' + err.message, 'error');
-    }
+    } catch (err) { hideTyping(); addMessage('生成回复失败: ' + err.message, 'error'); }
   };
 
   window.aiTranslate = async function() {
     var email = getCurrentEmail();
-    if (!email) {
-      addMessage('请先打开一封邮件，然后再点击"翻译"。', 'error');
-      return;
-    }
-
+    if (!email) { addMessage('请先打开一封邮件，然后再点击"翻译"。', 'error'); return; }
     addMessage('正在翻译邮件...', 'user');
     showTyping();
     chatHistory.push({ role: 'user', content: '请翻译这封邮件' });
-
     try {
       var response = '';
       var msgDiv = null;
-
       await streamChat([
         { role: 'system', content: 'You are a translator. Translate the following email to Chinese. Keep the original formatting.' },
         { role: 'user', content: 'Subject: ' + email.subject + '\nFrom: ' + email.from + '\nBody:\n' + email.body }
@@ -930,15 +851,10 @@
         msgDiv.innerHTML = formatText(response);
         document.getElementById('ai-messages').scrollTop = document.getElementById('ai-messages').scrollHeight;
       });
-
       chatHistory.push({ role: 'assistant', content: response });
-    } catch (err) {
-      hideTyping();
-      addMessage('翻译失败: ' + err.message, 'error');
-    }
+    } catch (err) { hideTyping(); addMessage('翻译失败: ' + err.message, 'error'); }
   };
 
-  // Initialize after DOM ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', createUI);
   } else {
@@ -958,9 +874,7 @@ document.addEventListener('DOMContentLoaded', function () {
 function mc_logout() {
     fetch("/", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded"
-        },
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: "logout=1"
     }).then(() => window.location.href = '/');
 }
