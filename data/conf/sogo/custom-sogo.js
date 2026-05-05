@@ -2,87 +2,49 @@
 (function() {
   'use strict';
 
-  // First: inject a VERY obvious test style to verify injection works
-  var testStyle = document.createElement('style');
-  testStyle.id = 'sogo-test-style';
-  testStyle.textContent = 'body { border: 5px solid red !important; } body::before { content: "CUSTOM JS LOADED"; display: block; background: red; color: white; padding: 10px; text-align: center; font-size: 20px; font-weight: bold; z-index: 99999; position: relative; }';
-  document.head.appendChild(testStyle);
-  console.log('[QQ Mail] Test style injected');
-
-  // Debug: log what elements exist
-  setTimeout(function() {
-    var toolbar = document.querySelector('.mc-toolbar') || document.querySelector('md-toolbar');
-    var sidenav = document.querySelector('md-sidenav');
-    var folderPanel = document.querySelector('.folder-panel') || document.querySelector('.mc-folder-panel');
-    console.log('[QQ Mail] DOM check - toolbar:', !!toolbar, 'sidenav:', !!sidenav, 'folderPanel:', !!folderPanel);
-    if (toolbar) console.log('[QQ Mail] toolbar classes:', toolbar.className);
-    if (sidenav) console.log('[QQ Mail] sidenav classes:', sidenav.className);
-
-    // Log all md- elements
-    var mdElements = document.querySelectorAll('[class*="md-"]');
-    console.log('[QQ Mail] Found', mdElements.length, 'md-* elements');
-
-    // Log all mc- elements
-    var mcElements = document.querySelectorAll('[class*="mc-"]');
-    console.log('[QQ Mail] Found', mcElements.length, 'mc-* elements');
-
-    // Log the main app container
-    var app = document.querySelector('.mc-app') || document.querySelector('[ng-app]') || document.querySelector('[data-ng-app]');
-    if (app) {
-      console.log('[QQ Mail] App container:', app.tagName, app.className);
-    }
-  }, 2000);
-
   var css = `
-    /* ===== QQ Mail Theme for SOGo — Full Layout Overhaul ===== */
+    /* ===== QQ Mail Theme for SOGo ===== */
+    /* Based on actual SOGo DOM: md-toolbar, md-sidenav, md-list-item, md-content */
 
     /* --- Global Font & Base --- */
-    body, .mc-app, .ng-scope {
+    body, body.ng-scope, main {
       font-family: 'Noto Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', sans-serif !important;
       color: #333 !important;
       background: #f0f2f5 !important;
     }
 
-    /* --- Top Navbar: QQ Mail Blue with Logo Area --- */
-    .mc-toolbar, md-toolbar.md-default-theme, md-toolbar {
+    /* --- Top Navbar --- */
+    md-toolbar, md-toolbar.md-default-theme, md-toolbar.md-hue-2 {
       background: linear-gradient(135deg, #4A90D9 0%, #357ABD 50%, #2B6CB0 100%) !important;
       color: #fff !important;
-      height: 56px !important;
-      min-height: 56px !important;
       box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
       z-index: 100 !important;
     }
-    .mc-toolbar .md-toolbar-tools,
     md-toolbar .md-toolbar-tools {
       color: #fff !important;
-      height: 56px !important;
       padding: 0 16px !important;
       font-size: 15px !important;
     }
-    .mc-toolbar a, .mc-toolbar button, .mc-toolbar .md-button,
-    md-toolbar a, md-toolbar button, md-toolbar .md-button {
+    md-toolbar a, md-toolbar button, md-toolbar .md-button,
+    md-toolbar .md-toolbar-tools a, md-toolbar .md-toolbar-tools button,
+    md-toolbar .md-toolbar-tools .md-button {
       color: rgba(255,255,255,0.9) !important;
-      border-radius: 6px !important;
     }
-    .mc-toolbar a:hover, .mc-toolbar button:hover,
-    md-toolbar a:hover, md-toolbar button:hover {
+    md-toolbar a:hover, md-toolbar button:hover, md-toolbar .md-button:hover {
       color: #fff !important;
       background: rgba(255,255,255,0.12) !important;
     }
-    .mc-toolbar md-icon, md-toolbar md-icon {
+    md-toolbar md-icon {
       color: rgba(255,255,255,0.9) !important;
     }
-    .mc-toolbar .md-toolbar-tools .md-button,
     md-toolbar .md-toolbar-tools .md-button {
       margin: 0 2px !important;
       padding: 6px 12px !important;
       font-size: 13px !important;
+      border-radius: 6px !important;
     }
-    .mc-toolbar .mc-toolbar-brand,
-    .mc-toolbar [href="/SOGo/"],
-    md-toolbar .md-toolbar-tools > a:first-child,
-    md-toolbar .md-toolbar-tools > a[href],
-    .mc-toolbar-tools > .md-toolbar-item:first-child:not(.mc-qq-brand) {
+    /* Hide default brand in toolbar */
+    md-toolbar .md-toolbar-tools > a:first-child {
       font-size: 0 !important;
       width: 0 !important;
       max-width: 0 !important;
@@ -93,11 +55,8 @@
       pointer-events: none !important;
       position: absolute !important;
     }
-    .mc-toolbar .mc-toolbar-brand + *,
-    .mc-toolbar [href="/SOGo/"] + * {
-      margin-left: 0 !important;
-    }
-    .mc-toolbar .mc-qq-brand {
+    /* Injected brand */
+    md-toolbar .mc-qq-brand {
       font-size: 18px !important;
       font-weight: 700 !important;
       letter-spacing: 1px !important;
@@ -111,59 +70,39 @@
       position: relative !important;
       z-index: 10 !important;
     }
-    .mc-toolbar .mc-qq-brand span {
+    md-toolbar .mc-qq-brand span {
       font-size: 20px !important;
     }
 
     /* --- Sidebar / Folder Panel --- */
-    .folder-panel, .mc-folder-panel,
-    md-sidenav, md-sidenav.md-default-theme {
+    md-sidenav, md-sidenav.md-sidenav-left {
       background: #fff !important;
       border-right: 1px solid #e8ecef !important;
-      width: 220px !important;
-      min-width: 220px !important;
     }
-    .folder-panel .panel-heading,
-    .mc-folder-panel .panel-heading {
-      background: #fafbfc !important;
-      border-bottom: 1px solid #e8ecef !important;
-      padding: 12px 16px !important;
-      font-size: 14px !important;
-      font-weight: 600 !important;
+    md-sidenav md-list-item, md-sidenav md-list-item .md-button {
       color: #333 !important;
-    }
-    .folder-panel md-list-item,
-    .mc-folder-panel md-list-item {
+      font-size: 13px !important;
       min-height: 38px !important;
       height: 38px !important;
-    }
-    .folder-panel md-list-item .md-button,
-    .mc-folder-panel md-list-item .md-button {
-      color: #333 !important;
+      line-height: 38px !important;
       border-radius: 6px !important;
-      margin: 1px 8px !important;
-      padding: 6px 12px !important;
-      min-height: 36px !important;
-      font-size: 13px !important;
-      line-height: 36px !important;
       transition: all 0.15s ease !important;
     }
-    .folder-panel md-list-item .md-button:hover,
-    .mc-folder-panel md-list-item .md-button:hover {
+    md-sidenav md-list-item:hover, md-sidenav md-list-item .md-button:hover {
       background: #f0f6ff !important;
       color: #4A90D9 !important;
     }
-    .folder-panel md-list-item.selected .md-button,
-    .mc-folder-panel md-list-item.selected .md-button,
-    .folder-panel md-list-item .md-button.selected,
-    .mc-folder-panel md-list-item .md-button.selected {
+    md-sidenav md-list-item.md-active .md-button,
+    md-sidenav md-list-item.selected .md-button,
+    md-sidenav md-list-item .md-button.selected,
+    md-sidenav md-list-item .md-button.md-focused {
       background: linear-gradient(135deg, #4A90D9, #357ABD) !important;
       color: #fff !important;
       font-weight: 500 !important;
       box-shadow: 0 2px 6px rgba(30,136,229,0.3) !important;
     }
-    .folder-panel md-list-item .badge,
-    .mc-folder-panel md-list-item .badge {
+    md-sidenav md-list-item .badge,
+    md-sidenav md-list-item .badgeContainer {
       background: #ff4444 !important;
       color: #fff !important;
       font-size: 11px !important;
@@ -173,79 +112,67 @@
       text-align: center !important;
       font-weight: 600 !important;
     }
-    .folder-panel md-list-item .md-button md-icon,
-    .mc-folder-panel md-list-item .md-button md-icon {
+    md-sidenav md-list-item md-icon {
       font-size: 18px !important;
       width: 18px !important;
       height: 18px !important;
       margin-right: 8px !important;
       color: #4A90D9 !important;
     }
-    .folder-panel md-list-item.selected .md-button md-icon,
-    .mc-folder-panel md-list-item.selected .md-button md-icon {
+    md-sidenav md-list-item.md-active md-icon,
+    md-sidenav md-list-item.selected md-icon {
       color: #fff !important;
     }
-    .folder-panel md-divider,
-    .mc-folder-panel md-divider {
+    md-sidenav md-divider {
       margin: 4px 12px !important;
       border-color: #f0f0f0 !important;
     }
+    /* Folder panel section headers */
+    md-sidenav .folder-name, md-sidenav .panel-heading {
+      background: #fafbfc !important;
+      border-bottom: 1px solid #e8ecef !important;
+      padding: 12px 16px !important;
+      font-size: 14px !important;
+      font-weight: 600 !important;
+      color: #333 !important;
+    }
 
     /* --- Mail List --- */
-    .mail-list, .mc-mail-list {
+    md-content {
       background: #fff !important;
-      border-radius: 0 !important;
     }
-    .mail-list md-list-item,
-    .mc-mail-list md-list-item {
+    md-content md-list-item,
+    md-content md-list-item.md-no-proxy {
       border-bottom: 1px solid #f5f5f5 !important;
       padding: 10px 16px !important;
       min-height: 64px !important;
       transition: background 0.15s ease !important;
     }
-    .mail-list md-list-item:hover,
-    .mc-mail-list md-list-item:hover {
+    md-content md-list-item:hover {
       background: #f0f6ff !important;
     }
-    .mail-list md-list-item.selected,
-    .mc-mail-list md-list-item.selected,
-    .mail-list md-list-item.active,
-    .mc-mail-list md-list-item.active {
+    md-content md-list-item.md-active,
+    md-content md-list-item.selected,
+    md-content md-list-item.active {
       background: #e8f0fe !important;
       border-left: 3px solid #4A90D9 !important;
       padding-left: 13px !important;
     }
-    .mail-list .unread md-list-item,
-    .mc-mail-list .unread md-list-item,
-    .mail-list md-list-item.unread,
-    .mc-mail-list md-list-item.unread {
+    md-content md-list-item.unread,
+    md-content md-list-item .unread {
       font-weight: 600 !important;
     }
-    .mail-list .unread md-list-item::before,
-    .mc-mail-list .unread md-list-item::before {
-      content: '' !important;
-      display: inline-block !important;
-      width: 8px !important;
-      height: 8px !important;
-      background: #4A90D9 !important;
-      border-radius: 50% !important;
-      margin-right: 8px !important;
-      flex-shrink: 0 !important;
-    }
-    .mail-list .from, .mc-mail-list .from,
-    .mail-list .mc-mail-sender, .mc-mail-list .mc-mail-sender {
+    md-content md-list-item .subject {
       color: #1a1a1a !important;
       font-size: 14px !important;
       font-weight: 500 !important;
     }
-    .mail-list .subject, .mc-mail-list .subject,
-    .mail-list .mc-mail-subject, .mc-mail-list .mc-mail-subject {
+    md-content md-list-item .from {
       color: #333 !important;
       font-size: 13px !important;
-      line-height: 1.4 !important;
     }
-    .mail-list .preview, .mc-mail-list .preview,
-    .mail-list .mc-mail-preview, .mc-mail-list .mc-mail-preview {
+    md-content md-list-item .preview,
+    md-content md-list-item .snippet {
       color: #999 !important;
       font-size: 12px !important;
       margin-top: 2px !important;
@@ -253,66 +180,21 @@
       text-overflow: ellipsis !important;
       white-space: nowrap !important;
     }
-    .mail-list .date, .mc-mail-list .date,
-    .mail-list .mc-mail-date, .mc-mail-list .mc-mail-date {
+    md-content md-list-item .date {
       color: #999 !important;
       font-size: 12px !important;
-      float: right !important;
     }
-
-    /* --- Email Detail --- */
-    .mail-content, .mc-mail-content, .mail-detail, .mc-mail-detail {
-      background: #fff !important;
-      border-radius: 0 !important;
-      padding: 0 !important;
-    }
-    .mail-content .mc-mail-header,
-    .mc-mail-content .mc-mail-header,
-    .mail-detail .mail-header {
-      padding: 20px 24px !important;
-      border-bottom: 1px solid #f0f0f0 !important;
-    }
-    .mail-content .subject, .mc-mail-content .subject,
-    .mail-content .mc-mail-subject, .mc-mail-content .mc-mail-subject {
-      color: #1a1a1a !important;
-      font-size: 20px !important;
+    md-content md-list-item .badge {
+      background: #ff4444 !important;
+      color: #fff !important;
+      font-size: 11px !important;
+      padding: 2px 6px !important;
+      border-radius: 10px !important;
       font-weight: 600 !important;
-      line-height: 1.3 !important;
-      margin-bottom: 12px !important;
-    }
-    .mail-content .from, .mc-mail-content .from,
-    .mail-content .mc-mail-from, .mc-mail-content .mc-mail-from {
-      color: #333 !important;
-      font-size: 14px !important;
-    }
-    .mail-content .from a, .mc-mail-content .from a {
-      color: #4A90D9 !important;
-      text-decoration: none !important;
-    }
-    .mail-content .body, .mc-mail-content .body,
-    .mail-content .mc-mail-body, .mc-mail-content .mc-mail-body,
-    .mail-body {
-      padding: 20px 24px !important;
-      font-size: 14px !important;
-      line-height: 1.7 !important;
-      color: #333 !important;
-    }
-    .mail-content .mc-mail-actions,
-    .mc-mail-content .mc-mail-actions,
-    .mail-detail .mail-actions {
-      padding: 8px 16px !important;
-      background: #fafbfc !important;
-      border-bottom: 1px solid #f0f0f0 !important;
-    }
-    .mail-content .mc-mail-actions .md-button,
-    .mc-mail-content .mc-mail-actions .md-button {
-      border-radius: 6px !important;
-      font-size: 13px !important;
-      padding: 4px 12px !important;
     }
 
     /* --- Buttons --- */
-    .md-button.md-primary, .md-button.md-default-theme.md-primary, md-button.md-primary {
+    .md-button.md-primary, md-button.md-primary {
       background: linear-gradient(135deg, #4A90D9, #357ABD) !important;
       color: #fff !important;
       border-radius: 6px !important;
@@ -344,9 +226,6 @@
       background: linear-gradient(135deg, #4A90D9, #2B6CB0) !important;
       box-shadow: 0 4px 12px rgba(30,136,229,0.4) !important;
     }
-    .md-button.md-fab:hover, md-fab-trigger .md-button:hover {
-      box-shadow: 0 6px 20px rgba(30,136,229,0.5) !important;
-    }
 
     /* --- Links --- */
     a { color: #4A90D9 !important; }
@@ -367,12 +246,11 @@
     }
 
     /* --- Tabs --- */
-    md-tabs.md-default-theme md-tab-item, md-tab-item {
+    md-tabs md-tab-item, md-tab-item {
       color: #666 !important;
       font-size: 14px !important;
-      padding: 0 16px !important;
     }
-    md-tabs.md-default-theme md-tab-item.active, md-tab-item.md-active {
+    md-tabs md-tab-item.md-active, md-tab-item.md-active {
       color: #4A90D9 !important;
       font-weight: 600 !important;
     }
@@ -382,15 +260,15 @@
     }
 
     /* --- Checkbox / Switch --- */
-    md-checkbox.md-checked .md-icon, md-radio-button.md-checked .md-icon {
+    md-checkbox.md-checked .md-icon {
       background: #4A90D9 !important;
       border-color: #4A90D9 !important;
     }
     md-switch.md-checked .md-thumb { background: #4A90D9 !important; }
     md-switch.md-checked .md-bar { background: rgba(30,136,229,0.5) !important; }
 
-    /* --- Cards, Dialogs, Panels --- */
-    md-card, .panel {
+    /* --- Cards, Dialogs --- */
+    md-card {
       border-radius: 8px !important;
       box-shadow: 0 2px 8px rgba(0,0,0,0.06) !important;
       border: none !important;
@@ -413,7 +291,7 @@
     ::-webkit-scrollbar-thumb { background: #d0d0d0; border-radius: 3px; }
     ::-webkit-scrollbar-thumb:hover { background: #b0b0b0; }
 
-    /* --- General UI Polish --- */
+    /* --- General UI --- */
     .contact-image, .avatar {
       border-radius: 50% !important;
       box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
@@ -450,25 +328,6 @@
       background: #333 !important;
       border-radius: 4px !important;
       padding: 4px 8px !important;
-    }
-    .mc-status-bar, .status-bar {
-      background: #fafbfc !important;
-      border-top: 1px solid #e8ecef !important;
-      font-size: 12px !important;
-      color: #999 !important;
-      padding: 4px 16px !important;
-    }
-    .compose-window, .mc-compose {
-      border-radius: 12px !important;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.18) !important;
-      overflow: hidden !important;
-    }
-    .compose-window .compose-header,
-    .mc-compose .compose-header {
-      background: linear-gradient(135deg, #4A90D9, #2B6CB0) !important;
-      color: #fff !important;
-      padding: 12px 16px !important;
-      font-weight: 600 !important;
     }
 
     /* ===== AI Assistant Panel ===== */
@@ -592,25 +451,26 @@
   style.id = 'sogo-qq-mail-style';
   style.appendChild(document.createTextNode(css));
   document.head.appendChild(style);
-  console.log('[QQ Mail] QQ Mail CSS injected, style id:', style.id);
+  console.log('[QQ Mail] CSS injected');
 })();
 
-// Inject QQ Mail style brand into toolbar
+// Inject QQ Mail brand into toolbar
 (function() {
   'use strict';
   function injectBrand() {
-    var toolbar = document.querySelector('.mc-toolbar .md-toolbar-tools, md-toolbar .md-toolbar-tools');
-    if (!toolbar || toolbar.querySelector('.mc-qq-brand')) return;
+    var toolbar = document.querySelector('md-toolbar .md-toolbar-tools');
+    if (!toolbar || toolbar.querySelector('.mc-qq-brand')) return false;
     var brand = document.createElement('a');
     brand.className = 'mc-qq-brand';
     brand.href = '/SOGo/';
     brand.innerHTML = '<span>&#x2709;</span> AI Mail';
     toolbar.insertBefore(brand, toolbar.firstChild);
+    console.log('[QQ Mail] Brand injected');
     return true;
   }
   if (!injectBrand()) {
-    var observer = new MutationObserver(function(mutations) {
-      if (injectBrand()) { observer.disconnect(); }
+    var observer = new MutationObserver(function() {
+      if (injectBrand()) observer.disconnect();
     });
     observer.observe(document.body, { childList: true, subtree: true });
     setTimeout(injectBrand, 1000);
@@ -716,9 +576,9 @@
   }
 
   function getCurrentEmail() {
-    var subject = document.querySelector('.mail-content .subject, .mc-mail-content .subject');
-    var body = document.querySelector('.mail-content .body, .mc-mail-content .body, .mail-body');
-    var from = document.querySelector('.mail-content .from, .mc-mail-content .from');
+    var subject = document.querySelector('.mail-content .subject, .mc-mail-content .subject, md-content .subject');
+    var body = document.querySelector('.mail-content .body, .mc-mail-content .body, .mail-body, md-content .body');
+    var from = document.querySelector('.mail-content .from, .mc-mail-content .from, md-content .from');
     if (subject || body) {
       return {
         subject: subject ? subject.textContent.trim() : '',
