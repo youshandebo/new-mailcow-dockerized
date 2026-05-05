@@ -778,49 +778,33 @@
     var injector = angular.element(document.body).injector();
     var rootScope = injector.get('$rootScope');
     var http = injector.get('$http');
-    var timeout = injector.get('$timeout');
 
-    var routeChangeInProgress = false;
-    var lastClickedItem = null;
-    var routeChangeTimer = null;
+    var isLoading = false;
+    var loadTimer = null;
 
-    // Track route changes
+    // Track when the app is loading data
+    rootScope.$on('$stateChangeStart', function() {
+      isLoading = true;
+      if (loadTimer) clearTimeout(loadTimer);
+    });
+    rootScope.$on('$stateChangeSuccess', function() {
+      // Delay resetting isLoading to account for data fetching after state change
+      if (loadTimer) clearTimeout(loadTimer);
+      loadTimer = setTimeout(function() { isLoading = false; }, 500);
+    });
+    rootScope.$on('$stateChangeError', function() {
+      isLoading = false;
+    });
     rootScope.$on('$routeChangeStart', function() {
-      routeChangeInProgress = true;
-      if (routeChangeTimer) clearTimeout(routeChangeTimer);
-      // Safety: if route change hangs for >5s, reset
-      routeChangeTimer = setTimeout(function() {
-        routeChangeInProgress = false;
-      }, 5000);
+      isLoading = true;
+      if (loadTimer) clearTimeout(loadTimer);
     });
-
     rootScope.$on('$routeChangeSuccess', function() {
-      routeChangeInProgress = false;
-      if (routeChangeTimer) clearTimeout(routeChangeTimer);
-
-      // Check if user clicked a different folder during loading
-      if (lastClickedItem) {
-        var item = lastClickedItem;
-        lastClickedItem = null;
-
-        // Verify the clicked folder is now active
-        timeout(function() {
-          var isActive = item.classList.contains('md-active') ||
-                         item.classList.contains('selected') ||
-                         item.querySelector('.md-active') ||
-                         item.querySelector('.selected');
-          if (!isActive) {
-            console.log('[Folder Fix] Wrong folder active after route change, re-clicking');
-            var btn = item.querySelector('.md-button') || item;
-            angular.element(btn).triggerHandler('click');
-          }
-        }, 100);
-      }
+      if (loadTimer) clearTimeout(loadTimer);
+      loadTimer = setTimeout(function() { isLoading = false; }, 500);
     });
-
     rootScope.$on('$routeChangeError', function() {
-      routeChangeInProgress = false;
-      if (routeChangeTimer) clearTimeout(routeChangeTimer);
+      isLoading = false;
     });
 
     // Intercept sidebar folder clicks
@@ -828,14 +812,31 @@
       var folderItem = e.target.closest('md-sidenav md-list-item');
       if (!folderItem) return;
 
-      lastClickedItem = folderItem;
+      if (isLoading) {
+        // Cancel all pending HTTP requests to unblock the UI
+        var pending = http.pendingRequests || [];
+        pending.forEach(function(req) {
+          if (req.timeout && typeof req.timeout.resolve === 'function') {
+            req.timeout.resolve();
+          }
+        });
 
-      // If a route change is in progress, block the click and re-trigger after
-      if (routeChangeInProgress) {
+        // Force Angular to process the cancel and then re-trigger click
         e.stopPropagation();
         e.preventDefault();
-        console.log('[Folder Fix] Blocked click during pending route change');
-        // The $routeChangeSuccess handler will re-trigger it
+
+        var target = folderItem;
+        setTimeout(function() {
+          isLoading = false;
+          var btn = target.querySelector('.md-button') || target;
+          // Use mousedown + mouseup + click for full event simulation
+          ['mousedown', 'mouseup', 'click'].forEach(function(evtType) {
+            var evt = new MouseEvent(evtType, { bubbles: true, cancelable: true, view: window });
+            btn.dispatchEvent(evt);
+          });
+        }, 100);
+
+        console.log('[Folder Fix] Cancelled pending requests, re-triggering click');
         return;
       }
     }, true);
