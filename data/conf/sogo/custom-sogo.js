@@ -650,7 +650,7 @@
 (function() {
   'use strict';
 
-  var AI_BASE = '/webmail/api/ai-proxy';
+  var AI_BASE = '/api/ai-proxy.php';
   var AI_KEY = 'mailcow-ai-2024';
   var chatHistory = [];
   var isOpen = false;
