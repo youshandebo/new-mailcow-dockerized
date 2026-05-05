@@ -770,7 +770,7 @@
   }
 })();
 
-// Fix folder switching race condition
+// Fix folder switching: use mousedown instead of click to handle same-position clicks
 (function() {
   'use strict';
 
@@ -779,13 +779,10 @@
     var rootScope = injector.get('$rootScope');
     var http = injector.get('$http');
 
-    // Intercept $stateChangeStart to cancel pending HTTP requests
-    // This prevents the previous folder's data from overwriting the new folder's view
-    rootScope.$on('$stateChangeStart', function(event, toState, toParams) {
-      // Cancel all pending HTTP requests when navigating to a new mailbox
+    // Cancel pending HTTP requests on state change
+    rootScope.$on('$stateChangeStart', function(event, toState) {
       if (toState.name && toState.name.indexOf('mail.account.mailbox') === 0) {
-        var pending = http.pendingRequests.slice();
-        pending.forEach(function(req) {
+        http.pendingRequests.forEach(function(req) {
           if (req.timeout && typeof req.timeout.resolve === 'function') {
             req.timeout.resolve();
           }
@@ -793,7 +790,38 @@
       }
     });
 
-    console.log('[Folder Fix] Installed - cancel pending HTTP on state change');
+    // Use mousedown to handle same-position clicks that the browser drops
+    // The browser suppresses 'click' events at the same coordinates,
+    // but 'mousedown' fires on every button press
+    document.addEventListener('mousedown', function(e) {
+      if (e.button !== 0) return; // only left click
+
+      var item = e.target.closest('md-sidenav md-list-item');
+      if (!item) return;
+
+      // Check if this is a different folder than the currently active one
+      var isActive = item.classList.contains('md-bg') ||
+                     item.querySelector('.md-bg');
+      if (isActive) return; // already selected, let normal handler work
+
+      // Find the clickable element (the <p class="sg-item-name"> tag)
+      var clickTarget = item.querySelector('p.sg-item-name') ||
+                        item.querySelector('p[ng-click]') ||
+                        item.querySelector('p');
+      if (!clickTarget) return;
+
+      // Trigger AngularJS click handler via scope
+      try {
+        var scope = angular.element(clickTarget).scope();
+        if (scope && scope.$ctrl && scope.$ctrl.selectFolder) {
+          scope.$ctrl.selectFolder(e);
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      } catch(err) {}
+    }, true);
+
+    console.log('[Folder Fix] Installed - mousedown handler');
   }
 
   function init() {
@@ -803,7 +831,7 @@
       } else {
         setTimeout(init, 500);
       }
-    } catch(e) {
+    } catch(err) {
       setTimeout(init, 500);
     }
   }
