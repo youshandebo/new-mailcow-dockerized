@@ -19,7 +19,7 @@ if (preg_match("/(quarantine|qhandler)/i", $_SERVER['REQUEST_URI'])) {
 if (preg_match("/debug/i", $_SERVER['REQUEST_URI'])) {
   $css_minifier->add('/web/css/site/debug.css');
 }
-if ($_SERVER['REQUEST_URI'] == '/') {
+if ($_SERVER['REQUEST_URI'] == '/' || $_SERVER['REQUEST_URI'] == '/admin' || $_SERVER['REQUEST_URI'] == '/domainadmin') {
   $css_minifier->add('/web/css/site/index.css');
 }
 
