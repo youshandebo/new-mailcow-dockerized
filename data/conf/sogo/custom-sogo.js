@@ -774,55 +774,51 @@
 (function() {
   'use strict';
 
-  var clickSeq = 0;
-
   function setupFolderFix() {
     var injector = angular.element(document.body).injector();
-    var http = injector.get('$http');
     var rootScope = injector.get('$rootScope');
+    var location = injector.get('$location');
+    var timeout = injector.get('$timeout');
 
-    // Override $http to add cancel tokens for mail requests
-    var origHttp = http;
-    var activeCancels = {};
+    // Track the latest requested folder path
+    var latestPath = null;
 
+    // When route change starts, remember the target
     rootScope.$on('$routeChangeStart', function(event, next) {
-      clickSeq++;
-      var seq = clickSeq;
-
-      // After a short delay, check if this route change was superseded
-      setTimeout(function() {
-        if (seq !== clickSeq) {
-          // A newer click happened - abort any pending mail HTTP requests
-          http.pendingRequests.forEach(function(req) {
-            if (req.url && req.url.indexOf('/Mail/') !== -1) {
-              try {
-                if (req.timeout && typeof req.timeout.resolve === 'function') {
-                  req.timeout.resolve();
-                }
-              } catch(e) {}
-            }
-          });
-        }
-      }, 50);
+      if (next && next.$$route && next.$$route.originalPath) {
+        latestPath = next.$$route.originalPath;
+      }
     });
 
-    // Debounce sidebar folder clicks - ignore clicks within 200ms of each other
-    var lastFolderClick = 0;
+    // After each successful route change, verify we ended up where we wanted
+    rootScope.$on('$routeChangeSuccess', function(event, current) {
+      if (current && current.$$route && current.$$route.originalPath) {
+        latestPath = current.$$route.originalPath;
+      }
+    });
+
+    // Intercept sidebar folder clicks to force navigation
     document.addEventListener('click', function(e) {
       var folderItem = e.target.closest('md-sidenav md-list-item');
       if (!folderItem) return;
 
-      var now = Date.now();
-      if (now - lastFolderClick < 200) {
-        e.stopPropagation();
-        e.preventDefault();
-        console.log('[Folder Fix] Debounced rapid folder click');
-        return;
+      // Force AngularJS digest cycle to ensure navigation happens
+      if (!rootScope.$$phase) {
+        rootScope.$apply();
       }
-      lastFolderClick = now;
+
+      // After a brief delay, verify the navigation happened
+      setTimeout(function() {
+        var activeFolder = document.querySelector('md-sidenav md-list-item.md-active, md-sidenav md-list-item.selected');
+        if (activeFolder && activeFolder !== folderItem) {
+          // The wrong folder is active - force click again
+          var clickTarget = folderItem.querySelector('.md-button') || folderItem;
+          clickTarget.click();
+        }
+      }, 300);
     }, true);
 
-    console.log('[Folder Fix] Installed');
+    console.log('[Folder Fix] Installed - force navigation on stale state');
   }
 
   function init() {
