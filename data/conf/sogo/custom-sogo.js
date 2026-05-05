@@ -778,47 +778,68 @@
     var injector = angular.element(document.body).injector();
     var rootScope = injector.get('$rootScope');
     var location = injector.get('$location');
-    var timeout = injector.get('$timeout');
 
-    // Track the latest requested folder path
-    var latestPath = null;
+    // Track the last clicked folder element and timestamp
+    var lastClicked = null;
+    var lastClickTs = 0;
+    var navigationPending = false;
 
-    // When route change starts, remember the target
-    rootScope.$on('$routeChangeStart', function(event, next) {
-      if (next && next.$$route && next.$$route.originalPath) {
-        latestPath = next.$$route.originalPath;
-      }
+    // Listen for route changes to track pending navigation
+    rootScope.$on('$routeChangeStart', function() {
+      navigationPending = true;
+    });
+    rootScope.$on('$routeChangeSuccess', function() {
+      navigationPending = false;
+    });
+    rootScope.$on('$routeChangeError', function() {
+      navigationPending = false;
     });
 
-    // After each successful route change, verify we ended up where we wanted
-    rootScope.$on('$routeChangeSuccess', function(event, current) {
-      if (current && current.$$route && current.$$route.originalPath) {
-        latestPath = current.$$route.originalPath;
-      }
-    });
-
-    // Intercept sidebar folder clicks to force navigation
+    // Intercept sidebar folder clicks
     document.addEventListener('click', function(e) {
       var folderItem = e.target.closest('md-sidenav md-list-item');
       if (!folderItem) return;
 
-      // Force AngularJS digest cycle to ensure navigation happens
-      if (!rootScope.$$phase) {
-        rootScope.$apply();
-      }
+      var now = Date.now();
+      var isRapidClick = (now - lastClickTs) < 500;
+      lastClickTs = now;
 
-      // After a brief delay, verify the navigation happened
-      setTimeout(function() {
-        var activeFolder = document.querySelector('md-sidenav md-list-item.md-active, md-sidenav md-list-item.selected');
-        if (activeFolder && activeFolder !== folderItem) {
-          // The wrong folder is active - force click again
-          var clickTarget = folderItem.querySelector('.md-button') || folderItem;
-          clickTarget.click();
-        }
-      }, 300);
+      // If clicking the same folder, let it through normally
+      if (folderItem === lastClicked) return;
+      lastClicked = folderItem;
+
+      // If there's a pending navigation and user clicked a different folder,
+      // the new click might get swallowed. Force it through after a delay.
+      if (isRapidClick || navigationPending) {
+        var target = folderItem;
+        setTimeout(function() {
+          // Check if this folder became active
+          var isActive = target.classList.contains('md-active') ||
+                         target.classList.contains('selected') ||
+                         target.querySelector('.md-active') ||
+                         target.querySelector('.selected');
+          if (!isActive) {
+            // Navigation didn't happen - trigger it via AngularJS
+            try {
+              var scope = angular.element(target).scope();
+              if (scope && scope.$apply) {
+                scope.$apply(function() {
+                  // Simulate the click on the inner button
+                  var btn = target.querySelector('.md-button') || target;
+                  angular.element(btn).triggerHandler('click');
+                });
+              }
+            } catch(err) {
+              // Fallback: just click it again
+              var btn = target.querySelector('.md-button') || target;
+              btn.click();
+            }
+          }
+        }, 400);
+      }
     }, true);
 
-    console.log('[Folder Fix] Installed - force navigation on stale state');
+    console.log('[Folder Fix] Installed');
   }
 
   function init() {

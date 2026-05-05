@@ -11,7 +11,7 @@ body.modal-open {
   padding-right: inherit !important;
 }
 @media (min-width: 992px) {
-  body:not(.login-page) .container { width: 85%; max-width: 1400px; }
+  body.login-page .container.flex-grow-1 { max-width: 100% !important; width: 100% !important; padding: 0 !important; margin: 0 !important; }
 }
 .mass-actions-admin { user-select: none; }
 .inputMissingAttr { border-color: #ef4444; }
