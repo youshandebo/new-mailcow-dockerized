@@ -14,7 +14,8 @@ if (!isset($_SESSION['mailcow_cc_role']) || $_SESSION['mailcow_cc_role'] != 'use
 }
 
 header('Content-Type: application/x-apple-aspen-config');
-header('Content-Disposition: attachment; filename="'.$UI_TEXTS['main_name'].'.mobileconfig"');
+$main_name_safe = preg_replace('/[^a-zA-Z0-9 _.-]/', '', $UI_TEXTS['main_name']);
+header('Content-Disposition: attachment; filename="'.$main_name_safe.'.mobileconfig"');
 
 $email = $_SESSION['mailcow_cc_username'];
 $email_xml = htmlspecialchars($email, ENT_XML1, 'UTF-8');
@@ -213,7 +214,7 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
     <key>PayloadIdentifier</key>
     <string><?=$identifier?></string>
     <key>PayloadOrganization</key>
-    <string><?=$UI_TEXTS['main_name']?></string>
+    <string><?=htmlspecialchars($UI_TEXTS['main_name'], ENT_XML1, 'UTF-8')?></string>
     <key>PayloadRemovalDisallowed</key>
     <false/>
     <key>PayloadType</key>

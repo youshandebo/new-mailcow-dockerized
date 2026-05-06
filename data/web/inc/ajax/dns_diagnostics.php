@@ -53,12 +53,13 @@ if (isset($_SESSION['mailcow_cc_role']) && ($_SESSION['mailcow_cc_role'] == "adm
     $ptr6 = implode('.', array_reverse(str_split($ptr6, 1))) . '.ip6.arpa';
   }
 
-  $https_port = strpos($_SERVER['HTTP_HOST'], ':');
+  $_http_host = preg_replace('/[^a-zA-Z0-9.:\\-]/', '', $_SERVER['HTTP_HOST'] ?? '');
+  $https_port = strpos($_http_host, ':');
   if ($https_port === FALSE) {
     $https_port = 443;
   }
   else {
-    $https_port = substr($_SERVER['HTTP_HOST'], $https_port+1);
+    $https_port = substr($_http_host, $https_port+1);
   }
 
   if (!isset($autodiscover_config['sieve'])) {
@@ -380,13 +381,13 @@ if (isset($_SESSION['mailcow_cc_role']) && ($_SESSION['mailcow_cc_role'] == "adm
             else {
               $state = state_nomatch;
             }
-            $state .= '<br />' . $current[$data_field[$current['type']]];
+            $state .= '<br />' . htmlspecialchars($current[$data_field[$current['type']]], ENT_QUOTES, 'UTF-8');
           }
           if ($current['type'] == 'TXT' &&
               stripos($current['txt'], 'v=dmarc') === 0 &&
               $record[2] == $dmarc_link) {
             $current['txt'] = str_replace(' ', '', $current['txt']);
-            $state = $current[$data_field[$current['type']]] . state_optional;
+            $state = htmlspecialchars($current[$data_field[$current['type']]], ENT_QUOTES, 'UTF-8') . state_optional;
           }
           elseif ($current['type'] == 'TXT' &&
                   stripos($current['txt'], 'v=spf') === 0 &&
@@ -396,7 +397,7 @@ if (isset($_SESSION['mailcow_cc_role']) && ($_SESSION['mailcow_cc_role'] == "adm
             if (in_array($ip, $rslt) && in_array(expand_ipv6($ip6), $rslt)) {
               $state = state_good;
             }
-            $state .= '<br />' . $current[$data_field[$current['type']]] . state_optional;
+            $state .= '<br />' . htmlspecialchars($current[$data_field[$current['type']]], ENT_QUOTES, 'UTF-8') . state_optional;
           }
           elseif ($current['type'] == 'TXT' &&
                   stripos($current['txt'], 'v=dkim') === 0 &&
@@ -426,7 +427,7 @@ if (isset($_SESSION['mailcow_cc_role']) && ($_SESSION['mailcow_cc_role'] == "adm
         if ($state == state_nomatch) {
           $state = array();
           foreach ($currents as $current) {
-            $state[] = $current[$data_field[$current['type']]];
+            $state[] = htmlspecialchars($current[$data_field[$current['type']]], ENT_QUOTES, 'UTF-8');
           }
           $state = implode('<br />', $state);
         }

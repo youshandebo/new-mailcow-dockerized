@@ -24,6 +24,5 @@ $twig->addFunction(new TwigFunction('is_uri', function (string $uri, string $whe
 }));
 
 // filters
-$twig->addFilter(new TwigFilter('rot13', 'str_rot13'));
 $twig->addFilter(new TwigFilter('base64_encode', 'base64_encode'));
 $twig->addFilter(new TwigFilter('formatBytes', 'formatBytes'));

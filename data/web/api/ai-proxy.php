@@ -27,16 +27,13 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-// CSRF protection: require Sec-Fetch-Dest header or valid referer
-$sec_fetch = $_SERVER['HTTP_SEC_FETCH_DEST'] ?? '';
-$http_referer = $_SERVER['HTTP_REFERER'] ?? '';
-if ($sec_fetch !== 'empty' && $sec_fetch !== 'document') {
-    if (empty($http_referer) || strpos($http_referer, $_SERVER['HTTP_HOST']) === false) {
-        http_response_code(403);
-        echo "data: " . json_encode(['error' => 'CSRF validation failed']) . "\n\n";
-        echo "data: [DONE]\n\n";
-        exit;
-    }
+// CSRF protection: require valid Origin header
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+if (empty($origin) || strpos($origin, $_SERVER['HTTP_HOST']) === false) {
+    http_response_code(403);
+    echo "data: " . json_encode(['error' => 'CSRF validation failed']) . "\n\n";
+    echo "data: [DONE]\n\n";
+    exit;
 }
 
 // Read AI settings from Redis

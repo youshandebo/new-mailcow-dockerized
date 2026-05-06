@@ -158,13 +158,13 @@
 
 <script src="{{ js_path }}"></script>
 <script>
-  var lang_footer = {{ lang_footer|raw }};
-  var lang_acl = {{ lang_acl|raw }};
-  var lang_tfa = {{ lang_tfa|raw }};
-  var lang_fido2 = {{ lang_fido2|raw }};
-  var lang_success = {{ lang_success|raw }};
-  var lang_danger = {{ lang_danger|raw }};
-  var docker_timeout = {{ docker_timeout|raw }} * 1000;
+  var lang_footer = {{ lang_footer|raw|e("js") }};
+  var lang_acl = {{ lang_acl|raw|e("js") }};
+  var lang_tfa = {{ lang_tfa|raw|e("js") }};
+  var lang_fido2 = {{ lang_fido2|raw|e("js") }};
+  var lang_success = {{ lang_success|raw|e("js") }};
+  var lang_danger = {{ lang_danger|raw|e("js") }};
+  var docker_timeout = {{ docker_timeout|raw|e("js") }} * 1000;
   var mailcow_cc_role = '{{ mailcow_cc_role }}';
   {% if mailcow_cc_username %}
   var mailcow_info = {
