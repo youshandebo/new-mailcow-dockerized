@@ -87,7 +87,7 @@
         </legend>
         <hr />
         <div id="quarantine_template" class="collapse" >
-          <textarea autocorrect="off" spellcheck="false" autocapitalize="none" class="form-control textarea-code" rows="40" name="html_tmpl">{{ q_data.html_tmpl|raw }}</textarea>
+          <textarea autocorrect="off" spellcheck="false" autocapitalize="none" class="form-control textarea-code" rows="40" name="html_tmpl">{{ q_data.html_tmpl|e }}</textarea>
         </div>
         <button class="btn btn-sm d-block d-sm-inline btn-success" data-action="edit_selected" data-item="self" data-id="quarantine" data-api-url='edit/quarantine' data-api-attr='{"action":"settings"}' href="#"><i class="bi bi-check-lg"></i> {{ lang.admin.save }}</button>
       </form>
