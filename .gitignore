@@ -71,6 +71,7 @@ data/web/rc*/
 docker-compose.override.yml
 mailcow.conf
 mailcow.conf_backup
+.env
 rebuild-images.sh
 refresh_images.sh
 update_diffs/

@@ -2,6 +2,8 @@ services:
 
     unbound-mailcow:
       image: ghcr.io/mailcow/unbound:1.25
+      security_opt:
+        - no-new-privileges:true
       environment:
         - TZ=${TZ}
         - SKIP_UNBOUND_HEALTHCHECK=${SKIP_UNBOUND_HEALTHCHECK:-n}
@@ -18,6 +20,8 @@ services:
 
     mysql-mailcow:
       image: mariadb:10.11
+      security_opt:
+        - no-new-privileges:true
       depends_on:
         - unbound-mailcow
         - netfilter-mailcow
@@ -43,6 +47,8 @@ services:
 
     redis-mailcow:
       image: redis:7.4.6-alpine
+      security_opt:
+        - no-new-privileges:true
       entrypoint: ["/bin/sh","/redis-conf.sh"]
       volumes:
         - redis-vol-1:/data/
@@ -66,6 +72,8 @@ services:
 
     clamd-mailcow:
       image: ghcr.io/mailcow/clamd:1.71
+      security_opt:
+        - no-new-privileges:true
       restart: always
       depends_on:
         unbound-mailcow:
@@ -85,6 +93,8 @@ services:
 
     rspamd-mailcow:
       image: ghcr.io/mailcow/rspamd:3.14.3-1
+      security_opt:
+        - no-new-privileges:true
       stop_grace_period: 30s
       depends_on:
         - dovecot-mailcow
@@ -118,6 +128,8 @@ services:
 
     php-fpm-mailcow:
       image: ghcr.io/mailcow/phpfpm:8.2.29-2
+      security_opt:
+        - no-new-privileges:true
       command: "php-fpm -d date.timezone=${TZ} -d expose_php=0"
       depends_on:
         - redis-mailcow
@@ -201,6 +213,8 @@ services:
 
     sogo-mailcow:
       image: ghcr.io/mailcow/sogo:5.12.5-3
+      security_opt:
+        - no-new-privileges:true
       environment:
         - DBNAME=${DBNAME}
         - DBUSER=${DBUSER}
@@ -253,6 +267,8 @@ services:
 
     dovecot-mailcow:
       image: ghcr.io/mailcow/dovecot:2.3.21.1-2
+      security_opt:
+        - no-new-privileges:true
       depends_on:
         - mysql-mailcow
         - netfilter-mailcow
@@ -340,6 +356,8 @@ services:
 
     postfix-mailcow:
       image: ghcr.io/mailcow/postfix:3.7.11-2
+      security_opt:
+        - no-new-privileges:true
       depends_on:
         mysql-mailcow:
           condition: service_started
@@ -383,6 +401,8 @@ services:
 
     postfix-tlspol-mailcow:
       image: ghcr.io/mailcow/postfix-tlspol:1.8.23
+      security_opt:
+        - no-new-privileges:true
       depends_on:
         unbound-mailcow:
           condition: service_healthy
@@ -405,6 +425,8 @@ services:
 
     memcached-mailcow:
       image: memcached:alpine
+      security_opt:
+        - no-new-privileges:true
       restart: always
       environment:
         - TZ=${TZ}
@@ -414,6 +436,8 @@ services:
             - memcached
 
     nginx-mailcow:
+      security_opt:
+        - no-new-privileges:true
       depends_on:
         - redis-mailcow
         - php-fpm-mailcow
@@ -462,6 +486,8 @@ services:
             - nginx
 
     acme-mailcow:
+      security_opt:
+        - no-new-privileges:true
       depends_on:
         nginx-mailcow:
           condition: service_started
@@ -529,6 +555,8 @@ services:
 
     watchdog-mailcow:
       image: ghcr.io/mailcow/watchdog:2.11
+      security_opt:
+        - no-new-privileges:true
       dns:
         - ${IPV4_NETWORK:-172.22.1}.254
       tmpfs:
@@ -624,6 +652,8 @@ services:
 
     olefy-mailcow:
       image: ghcr.io/mailcow/olefy:1.15
+      security_opt:
+        - no-new-privileges:true
       restart: always
       environment:
         - TZ=${TZ}
