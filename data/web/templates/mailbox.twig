@@ -65,11 +65,11 @@
 {% include 'modals/mailbox.twig' %}
 
 <script type='text/javascript'>
-  var acl = '{{ acl_json|raw }}';
-  var lang = {{ lang_mailbox|raw }};
-  var lang_rl = {{ lang_rl|raw }};
-  var lang_edit = {{ lang_edit|raw }};
-  var lang_datatables = {{ lang_datatables|raw }};
+  var acl = '{{ acl_json|raw|e("js") }}';
+  var lang = {{ lang_mailbox|raw|e("js") }};
+  var lang_rl = {{ lang_rl|raw|e("js") }};
+  var lang_edit = {{ lang_edit|raw|e("js") }};
+  var lang_datatables = {{ lang_datatables|raw|e("js") }};
   var csrf_token = '{{ csrf_token }}';
   var pagination_size = Math.trunc('{{ pagination_size }}');
   var role = '{{ role }}';

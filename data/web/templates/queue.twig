@@ -51,9 +51,9 @@
 {% include 'modals/queue.twig' %}
 
 <script type='text/javascript'>
-  var lang_admin = {{ lang_admin|raw }};
-  var lang = {{ lang_queue|raw }};
-  var lang_datatables = {{ lang_datatables|raw }};
+  var lang_admin = {{ lang_admin|raw|e("js") }};
+  var lang = {{ lang_queue|raw|e("js") }};
+  var lang_datatables = {{ lang_datatables|raw|e("js") }};
   var csrf_token = '{{ csrf_token }}';
   var pagination_size = Math.trunc('{{ pagination_size }}');
   var table_for_domain = '{{ domain }}';

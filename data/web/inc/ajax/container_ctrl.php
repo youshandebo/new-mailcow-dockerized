@@ -52,7 +52,10 @@ if (preg_match('/^[a-z\-]{0,}-mailcow/', $_GET['service'])) {
   if ($_GET['action'] == "logs") {
     $lines = (empty($_GET['lines']) || !is_numeric($_GET['lines'])) ? 1000 : $_GET['lines'];
     header('Content-Type: text/plain; charset=utf-8');
-    print_r(preg_split('/\n/', docker('logs', $_GET['service'], $lines)));
+    $log_lines = preg_split('/\n/', docker('logs', $_GET['service'], $lines));
+    foreach ($log_lines as $line) {
+        echo htmlspecialchars($line, ENT_QUOTES, 'UTF-8') . "\n";
+    }
   }
 }
 

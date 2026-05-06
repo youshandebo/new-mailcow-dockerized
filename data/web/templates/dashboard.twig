@@ -552,9 +552,9 @@
 </div> <!-- /row -->
 
 <script type='text/javascript'>
-  var lang = {{ lang_admin|raw }};
-  var lang_debug = {{ lang_debug|raw }};
-  var lang_datatables = {{ lang_datatables|raw }};
+  var lang = {{ lang_admin|raw|e("js") }};
+  var lang_debug = {{ lang_debug|raw|e("js") }};
+  var lang_datatables = {{ lang_datatables|raw|e("js") }};
   var csrf_token = '{{ csrf_token }}';
   var log_pagination_size = Math.trunc('{{ log_pagination_size }}');
 </script>

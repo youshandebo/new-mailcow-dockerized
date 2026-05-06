@@ -62,9 +62,9 @@
 {% include 'modals/quarantine.twig' %}
 
 <script type='text/javascript'>
-var acl = '{{ acl_json|raw }}';
-var lang = {{ lang_quarantine|raw }};
-var lang_datatables = {{ lang_datatables|raw }};
+var acl = '{{ acl_json|raw|e("js") }}';
+var lang = {{ lang_quarantine|raw|e("js") }};
+var lang_datatables = {{ lang_datatables|raw|e("js") }};
 var csrf_token = '{{ csrf_token }}';
 var pagination_size = Math.trunc('{{ pagination_size }}');
 var role = '{{ role }}';
