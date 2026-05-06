@@ -71,7 +71,7 @@ function admin_login($user, $pass){
   global $pdo;
 
   if (!filter_var($user, FILTER_VALIDATE_EMAIL) && !ctype_alnum(str_replace(array('_', '.', '-'), '', $user))) {
-    if (!$is_internal){
+    if (!isset($is_internal) || !$is_internal){
       $_SESSION['return'][] =  array(
         'type' => 'danger',
         'log' => array(__FUNCTION__, $user, '*'),
@@ -136,7 +136,7 @@ function domainadmin_login($user, $pass){
   global $pdo;
 
   if (!filter_var($user, FILTER_VALIDATE_EMAIL) && !ctype_alnum(str_replace(array('_', '.', '-'), '', $user))) {
-    if (!$is_internal){
+    if (!isset($is_internal) || !$is_internal){
       $_SESSION['return'][] =  array(
         'type' => 'danger',
         'log' => array(__FUNCTION__, $user, '*'),

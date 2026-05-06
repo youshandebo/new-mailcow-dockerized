@@ -42,6 +42,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // CSRF protection for JSON requests
+    $sec_fetch = $_SERVER['HTTP_SEC_FETCH_DEST'] ?? '';
+    $http_referer = $_SERVER['HTTP_REFERER'] ?? '';
+    if ($sec_fetch !== 'empty' && $sec_fetch !== 'document') {
+        if (empty($http_referer) || strpos($http_referer, $_SERVER['HTTP_HOST']) === false) {
+            http_response_code(403);
+            echo json_encode(['error' => 'CSRF validation failed']);
+            exit;
+        }
+    }
+
     $input = json_decode(file_get_contents('php://input'), true);
     if (!$input) {
         $input = json_decode($_POST['attr'] ?? '{}', true);

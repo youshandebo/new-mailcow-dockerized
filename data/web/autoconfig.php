@@ -6,21 +6,20 @@ if(file_exists('inc/vars.local.inc.php')) {
 }
 $autodiscover_config = array_merge($default_autodiscover_config, $autodiscover_config);
 
-error_reporting(0);
-
 if (empty($mailcow_hostname)) {
   exit();
 }
 
-$domain_dot = strpos($_SERVER['HTTP_HOST'], '.');
-$domain_port = strpos($_SERVER['HTTP_HOST'], ':');
+$_http_host = preg_replace('/[^a-zA-Z0-9.:\\-]/', '', $_SERVER['HTTP_HOST'] ?? '');
+$domain_dot = strpos($_http_host, '.');
+$domain_port = strpos($_http_host, ':');
 if ($domain_port === FALSE) {
-  $domain = substr($_SERVER['HTTP_HOST'], $domain_dot+1);
+  $domain = substr($_http_host, $domain_dot+1);
   $port = 443;
 }
 else {
-  $domain = substr($_SERVER['HTTP_HOST'], $domain_dot+1, $domain_port-$domain_dot-1);
-  $port = substr($_SERVER['HTTP_HOST'], $domain_port+1);
+  $domain = substr($_http_host, $domain_dot+1, $domain_port-$domain_dot-1);
+  $port = substr($_http_host, $domain_port+1);
 }
 
 header('Content-Type: application/xml');

@@ -13,12 +13,11 @@ if (!isset($_SESSION['mailcow_cc_role']) || $_SESSION['mailcow_cc_role'] != 'use
   die();
 }
 
-error_reporting(0);
-
 header('Content-Type: application/x-apple-aspen-config');
 header('Content-Disposition: attachment; filename="'.$UI_TEXTS['main_name'].'.mobileconfig"');
 
 $email = $_SESSION['mailcow_cc_username'];
+$email_xml = htmlspecialchars($email, ENT_XML1, 'UTF-8');
 $domain = explode('@', $_SESSION['mailcow_cc_username'])[1];
 $identifier = implode('.', array_reverse(preg_split( '/(@|\.)/', $email))) . '.appleprofile.'.preg_replace('/[^a-zA-Z0-9]+/', '', $UI_TEXTS['main_name']);
 
@@ -26,7 +25,7 @@ try {
   $stmt = $pdo->prepare("SELECT `name` FROM `mailbox` WHERE `username`= :username");
   $stmt->execute(array(':username' => $email));
   $MailboxData = $stmt->fetch(PDO::FETCH_ASSOC);
-  $displayname = htmlspecialchars(empty($MailboxData['name']) ? $email : $MailboxData['name'], ENT_NOQUOTES);
+  $displayname = htmlspecialchars(empty($MailboxData['name']) ? $email : $MailboxData['name'], ENT_QUOTES, 'UTF-8');
 }
 catch(PDOException $e) {
   $displayname = $email;
@@ -78,13 +77,13 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
     <array>
       <dict>
         <key>EmailAccountDescription</key>
-        <string><?=$email?></string>
+        <string><?=$email_xml?></string>
         <key>EmailAccountType</key>
         <string>EmailTypeIMAP</string>
         <key>EmailAccountName</key>
         <string><?=$displayname?></string>
         <key>EmailAddress</key>
-        <string><?=$email?></string>
+        <string><?=$email_xml?></string>
         <key>IncomingMailServerAuthentication</key>
         <string>EmailAuthPassword</string>
         <key>IncomingMailServerHostName</key>
@@ -94,7 +93,7 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
         <key>IncomingMailServerUseSSL</key>
         <true/>
         <key>IncomingMailServerUsername</key>
-        <string><?=$email?></string>
+        <string><?=$email_xml?></string>
         <?php if($app_password === true): ?>
         <key>IncomingPassword</key>
         <string><?=$password?></string>
@@ -108,13 +107,13 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
         <key>OutgoingMailServerUseSSL</key>
         <true/>
         <key>OutgoingMailServerUsername</key>
-        <string><?=$email?></string>
+        <string><?=$email_xml?></string>
         <key>OutgoingPasswordSameAsIncomingPassword</key>
         <true/>
         <key>PayloadDescription</key>
         <string>Configures email account.</string>
         <key>PayloadDisplayName</key>
-        <string>IMAP Account (<?=$email?>)</string>
+        <string>IMAP Account (<?=$email_xml?>)</string>
         <key>PayloadIdentifier</key>
         <string><?=$identifier?>.email</string>
         <key>PayloadOrganization</key>
@@ -143,17 +142,17 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
       <?php if($onlyEmailAccount === false): ?>
       <dict>
         <key>CalDAVAccountDescription</key>
-        <string><?=$email?></string>
+        <string><?=$email_xml?></string>
         <key>CalDAVHostName</key>
         <string><?=$autodiscover_config['caldav']['server']?></string>
         <key>CalDAVPort</key>
         <real><?=$autodiscover_config['caldav']['port']?></real>
         <key>CalDAVPrincipalURL</key>
-        <string>/SOGo/dav/<?=$email?></string>
+        <string>/SOGo/dav/<?=$email_xml?></string>
         <key>CalDAVUseSSL</key>
         <true/>
         <key>CalDAVUsername</key>
-        <string><?=$email?></string>
+        <string><?=$email_xml?></string>
         <?php if($app_password === true): ?>
         <key>CalDAVPassword</key>
         <string><?=$password?></string>
@@ -161,7 +160,7 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
         <key>PayloadDescription</key>
         <string>Configures CalDAV account.</string>
         <key>PayloadDisplayName</key>
-        <string>CalDAV (<?=$email?>)</string>
+        <string>CalDAV (<?=$email_xml?>)</string>
         <key>PayloadIdentifier</key>
         <string><?=$identifier?>.CalDAV</string>
         <key>PayloadOrganization</key>
@@ -175,17 +174,17 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
       </dict>
       <dict>
         <key>CardDAVAccountDescription</key>
-        <string><?=$email?></string>
+        <string><?=$email_xml?></string>
         <key>CardDAVHostName</key>
         <string><?=$autodiscover_config['carddav']['server']?></string>
         <key>CardDAVPort</key>
         <integer><?=$autodiscover_config['carddav']['port']?></integer>
         <key>CardDAVPrincipalURL</key>
-        <string>/SOGo/dav/<?=$email?></string>
+        <string>/SOGo/dav/<?=$email_xml?></string>
         <key>CardDAVUseSSL</key>
         <true/>
         <key>CardDAVUsername</key>
-        <string><?=$email?></string>
+        <string><?=$email_xml?></string>
         <?php if($app_password === true): ?>
         <key>CardDAVPassword</key>
         <string><?=$password?></string>
@@ -193,7 +192,7 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
         <key>PayloadDescription</key>
         <string>Configures CardDAV accounts</string>
         <key>PayloadDisplayName</key>
-        <string>CardDAV (<?=$email?>)</string>
+        <string>CardDAV (<?=$email_xml?>)</string>
         <key>PayloadIdentifier</key>
         <string><?=$identifier?>.carddav</string>
         <key>PayloadOrganization</key>
@@ -210,7 +209,7 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
     <key>PayloadDescription</key>
     <string><?=$description?></string>
     <key>PayloadDisplayName</key>
-    <string><?=$email?></string>
+    <string><?=$email_xml?></string>
     <key>PayloadIdentifier</key>
     <string><?=$identifier?></string>
     <key>PayloadOrganization</key>

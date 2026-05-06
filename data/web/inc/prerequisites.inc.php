@@ -27,6 +27,9 @@ unset($https_port);
 $autodiscover_config = array_merge($default_autodiscover_config, $autodiscover_config);
 
 header_remove("X-Powered-By");
+header("X-Frame-Options: SAMEORIGIN");
+header("X-Content-Type-Options: nosniff");
+header("Referrer-Policy: same-origin");
 
 // Yubi OTP API
 require_once $_SERVER['DOCUMENT_ROOT'] . '/inc/lib/Yubico.php';

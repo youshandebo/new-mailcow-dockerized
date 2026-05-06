@@ -436,7 +436,7 @@ if (isset($_SESSION['mailcow_cc_role']) && ($_SESSION['mailcow_cc_role'] == "adm
           <td>%s</td>
           <td class="dns-found">%s</td>
           <td class="dns-recommended">%s</td>
-        </tr>', $record[0], $record[1], $record[2], $state);
+        </tr>', htmlspecialchars($record[0]), htmlspecialchars($record[1]), htmlspecialchars($record[2]), $state);
         $record[3] = explode('<br />', $state);
       }
 
@@ -477,7 +477,7 @@ if (isset($_SESSION['mailcow_cc_role']) && ($_SESSION['mailcow_cc_role'] == "adm
       }
       ?>
     </table>
-    <a id='download-zonefile' class="btn btn-sm btn-secondary visible-xs-block visible-sm-inline visible-md-inline visible-lg-inline mb-4" style="margin-top:10px" data-zonefile="<?=base64_encode($dns_data);?>" download='<?=$_GET['domain'];?>.txt' type='text/csv'>Download</a>
+    <a id='download-zonefile' class="btn btn-sm btn-secondary visible-xs-block visible-sm-inline visible-md-inline visible-lg-inline mb-4" style="margin-top:10px" data-zonefile="<?=base64_encode($dns_data);?>" download='<?=htmlspecialchars($_GET['domain'], ENT_QUOTES, 'UTF-8');?>.txt' type='text/csv'>Download</a>
     <script>
       var zonefile_dl_link = document.getElementById('download-zonefile');
       var zonefile = atob(zonefile_dl_link.getAttribute('data-zonefile'));

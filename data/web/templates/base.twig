@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
   <meta name="theme-color" content="#4A90D9"/>
   <meta http-equiv="Referrer-Policy" content="same-origin">
-  <title>{{ ui_texts.title_name|raw }}</title>
+  <title>{{ ui_texts.title_name }}</title>
 
   <link rel="stylesheet" href="{{ css_path }}">
   <script>
@@ -109,7 +109,7 @@
 
         {% if mailcow_apps_processed or app_links %}
         <li class="nav-item dropdown">
-          <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false"><i class="bi bi-link-45deg me-2"></i> {{ ui_texts.apps_name|raw }}</a>
+          <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false"><i class="bi bi-link-45deg me-2"></i> {{ ui_texts.apps_name }}</a>
           <ul class="dropdown-menu">
             {% for app in mailcow_apps_processed %}
               {% if not skip_sogo or not is_uri('SOGo', app.user_link) %}
@@ -668,7 +668,7 @@ function recursiveBase64StrToArrayBuffer(obj) {
 
 <div class="container footer">
   {% if ui_texts.ui_footer %}
-  <hr><span class="rot-enc">{{ ui_texts.ui_footer|rot13|raw }}</span>
+  <hr><span>{{ ui_texts.ui_footer }}</span>
   {% endif %}
   {% if mailcow_cc_username and mailcow_info.mailcow_branch|lower == "master" and mailcow_info.version_tag|default %}
   <span class="version">

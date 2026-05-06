@@ -5,7 +5,6 @@
 require_once $_SERVER['DOCUMENT_ROOT'] . '/inc/prerequisites.inc.php';
 cors("set_headers");
 header('Content-Type: application/json');
-error_reporting(0);
 
 function api_log($_data) {
   global $redis;

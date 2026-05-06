@@ -27,8 +27,8 @@
   {% endif %}
   <div class="brand-area">
     <img src="{{ logo|default('/img/cow_mailcow.svg') }}" alt="mailcow" style="height:52px;margin-bottom:12px;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.15))">
-    <h1>{{ ui_texts.main_name|raw|default('Mailcow Webmail') }}</h1>
-    <p>{{ ui_texts.title_name|raw|default('Secure & Modern Email') }}</p>
+    <h1>{{ ui_texts.main_name|default('Mailcow Webmail') }}</h1>
+    <p>{{ ui_texts.title_name|default('Secure & Modern Email') }}</p>
   </div>
 </div>
 
@@ -39,7 +39,7 @@
     </div>
     <div class="login-card-body">
       {% if ui_texts.ui_announcement_text and ui_texts.ui_announcement_active %}
-      <div class="login-announcement alert alert-{{ ui_texts.ui_announcement_type }} rot-enc">{{ ui_texts.ui_announcement_text|rot13 }}</div>
+      <div class="login-announcement alert alert-{{ ui_texts.ui_announcement_type }}">{{ ui_texts.ui_announcement_text }}</div>
       {% endif %}
 
       {% if is_mobileconfig %}

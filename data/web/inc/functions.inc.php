@@ -19,8 +19,8 @@ function readable_random_string($length = 8) {
   $consonants = array('b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'r', 's', 't', 'v', 'w', 'x', 'y', 'z');
   $max = $length / 2;
   for ($i = 1; $i <= $max; $i++) {
-    $string .= $consonants[rand(0,19)];
-    $string .= $vowels[rand(0,4)];
+    $string .= $consonants[random_int(0,19)];
+    $string .= $vowels[random_int(0,4)];
   }
   return $string;
 }
@@ -837,7 +837,7 @@ function verify_hash($hash, $password) {
       case "CLEAR":
       case "CLEARTEXT":
       case "PLAIN":
-        return $password == $hash;
+        return hash_equals($hash, $password);
 
       case "LDAP-MD5":
         $hash = base64_decode($hash);
@@ -880,7 +880,7 @@ function verify_hash($hash, $password) {
         return hash_equals(hash('md4', $password), $hash);
 
       case "PLAIN-MD5":
-        return md5($password) == $hash;
+        return hash_equals($hash, md5($password));
 
       case "PLAIN-TRUNC":
         $components = explode('-', $hash);
@@ -888,9 +888,9 @@ function verify_hash($hash, $password) {
           $trunc_len = $components[0];
           $trunc_password = $components[1];
 
-          return substr($password, 0, $trunc_len) == $trunc_password;
+          return hash_equals($trunc_password, substr($password, 0, $trunc_len));
         } else {
-          return $password == $hash;
+          return hash_equals($hash, $password);
         }
 
       case "SHA":
@@ -3780,8 +3780,7 @@ function getGUID() {
   if (function_exists('com_create_guid')) {
     return com_create_guid();
   }
-  mt_srand((double)microtime()*10000);//optional for php 4.2.0 and up.
-  $charid = strtoupper(md5(uniqid(rand(), true)));
+  $charid = strtoupper(bin2hex(random_bytes(16)));
   $hyphen = chr(45);// "-"
   return substr($charid, 0, 8).$hyphen
         .substr($charid, 8, 4).$hyphen

@@ -155,7 +155,7 @@ function session_check() {
     );
 
     if (!$is_search_endpoint && !empty($_POST)) {
-      if ($_SESSION['CSRF']['TOKEN'] != $_POST['csrf_token']) {
+      if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['CSRF']['TOKEN'], $_POST['csrf_token'])) {
         $_SESSION['return'][] = array(
           'type' => 'warning',
           'msg' => 'session_token'

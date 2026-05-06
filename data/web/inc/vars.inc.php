@@ -22,11 +22,12 @@ $default_pass_scheme = getenv('MAILCOW_PASS_SCHEME');
 // Autodiscover settings
 // ===
 // Auto-detect HTTPS port =>
-$https_port = strpos($_SERVER['HTTP_HOST'], ':');
+$_http_host = preg_replace('/[^a-zA-Z0-9.:\\-]/', '', $_SERVER['HTTP_HOST'] ?? '');
+$https_port = strpos($_http_host, ':');
 if ($https_port === FALSE) {
   $https_port = 443;
 } else {
-  $https_port = substr($_SERVER['HTTP_HOST'], $https_port+1);
+  $https_port = substr($_http_host, $https_port+1);
 }
 
 // Alternatively select port here =>
