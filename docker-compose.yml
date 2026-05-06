@@ -213,6 +213,9 @@ services:
 
     sogo-mailcow:
       image: ghcr.io/mailcow/sogo:5.12.5-3
+      depends_on:
+        - mysql-mailcow
+        - redis-mailcow
       security_opt:
         - no-new-privileges:true
       environment:
@@ -672,7 +675,7 @@ services:
             - olefy
 
     ofelia-mailcow:
-      image: mcuadros/ofelia:latest
+      image: mcuadros/ofelia:v0.3.10
       restart: always
       command: daemon --docker -f label=com.docker.compose.project=${COMPOSE_PROJECT_NAME}
       environment:
