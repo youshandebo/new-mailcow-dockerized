@@ -25,8 +25,8 @@
   </div>
   <div class="brand-area">
     <img src="{{ logo|default('/img/cow_mailcow.svg') }}" alt="mailcow" style="height:52px;margin-bottom:12px;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.15))">
-    <h1>{{ ui_texts.main_name|raw|default('Mailcow') }}</h1>
-    <p>{{ ui_texts.title_name|raw|default('Domain Administration') }}</p>
+    <h1>{{ ui_texts.main_name|default('Mailcow') }}</h1>
+    <p>{{ ui_texts.title_name|default('Domain Administration') }}</p>
   </div>
 </div>
 

@@ -12,7 +12,8 @@ if (strtolower($_GET['Protocol']) == 'activesync' && getenv('SKIP_SOGO') != "y")
   echo '{"Protocol":"ActiveSync","Url":"' . $autodiscover_config['activesync']['url'] . '"}';
 }
 elseif (strtolower($_GET['Protocol']) == 'autodiscoverv1') {
-  echo '{"Protocol":"AutodiscoverV1","Url":"https://' . $_SERVER['HTTP_HOST'] . '/Autodiscover/Autodiscover.xml"}';
+  $host = preg_replace('/[^a-zA-Z0-9.:\\-]/', '', $_SERVER['HTTP_HOST'] ?? '');
+  echo '{"Protocol":"AutodiscoverV1","Url":"https://' . $host . '/Autodiscover/Autodiscover.xml"}';
 }
 else {
   http_response_code(400);
